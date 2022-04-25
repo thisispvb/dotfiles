@@ -6,9 +6,10 @@ set -eufo pipefail
 # https://github.com/mathiasbynens/dotfiles/blob/main/.macos
 
 # Trackpad: enable tap to click for this user and for the login screen
-defaults -currentbalDomain com.apple.mouse.tapBeHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
-defaults write NSGlohavior -int 1
+defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true
+defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 
 defaults write -g ApplePressAndHoldEnabled -bool false
 
@@ -16,6 +17,7 @@ defaults write NSGlobalDomain AppleInterfaceStyle Dark
 defaults write NSGlobalDomain AppleLanguages -array en-US
 defaults write NSGlobalDomain AppleLocale en_US
 defaults write NSGlobalDomain AppleMeasurementUnits -string "Centimeters"
+defaults write NSGlobalDomain AppleShowScrollBars -string "Always"
 
 defaults write NSGlobalDomain AppleFontSmoothing -int 1
 defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false
@@ -39,6 +41,16 @@ defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
 defaults write com.apple.dock orientation left
 defaults write com.apple.dock show-recents -bool false
 defaults write com.apple.dock tilesize -int 32
+# Hot corners
+# Possible values: 0 no-op; 2 Mission Control; 3 Show application windows; 4 Desktop; 5 Start screen saver; 6 Disable screen saver; 7 Dashboard; 10 Put display to sleep; 11 Launchpad; 12 Notification Center
+defaults write com.apple.dock wvous-tl-corner -int 0
+defaults write com.apple.dock wvous-tl-modifier -int 0
+defaults write com.apple.dock wvous-tr-corner -int 0
+defaults write com.apple.dock wvous-tr-modifier -int 0
+defaults write com.apple.dock wvous-bl-corner -int 0
+defaults write com.apple.dock wvous-bl-modifier -int 0
+defaults write com.apple.dock wvous-br-corner -int 0
+defaults write com.apple.dock wvous-br-modifier -int 0
 
 defaults write com.apple.finder CreateDesktop -bool false
 defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
