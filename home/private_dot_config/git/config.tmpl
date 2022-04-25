@@ -1,0 +1,148 @@
+[user]
+    name = Philip von Bargen
+    email = p@bargen.co
+# [advice]
+#     addEmptyPathspec = false
+#     pushNonFastForward = false
+#     statusHints = false
+[alias]
+    a = add
+    ap = add -p
+    amc = am --continue
+    b = branch
+    bm = branch --merged
+    bnm = branch --no-merged
+    c = clone
+    ca = commit --amend
+    cane = commit --amend --no-edit
+    cf = commit --fixup
+    cm = commit --message
+    co = checkout
+    cob = checkout -b
+    com = checkout main
+    cp = cherry-pick
+    d = diff
+    dc = diff --cached
+    dom = diff origin/main
+    fo = fetch origin
+    g = grep --line-number
+    mbhom = merge-base HEAD origin/main
+    mff = merge --ff-only
+    ol = log --pretty=oneline
+    l = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+    p = push
+    pf = push --force
+    prb = pull --rebase
+    r = restore
+    ra = rebase --abort
+    rc = rebase --continue
+    ri = rebase --interactive
+    rl = reflog
+    riom = rebase --interactive origin/main
+    rpo = remote prune origin
+    s = status -sb
+    ss = commit --message snapshot --no-gpg-sign
+    su = submodule update
+    wd = diff --patience --word-diff
+    whoami = config user.email
+[apply]
+    # Detect whitespace errors when applying a patch.
+    whitespace = fix
+[branch]
+    # Auto-setup remote tracking for branches that exist on remote.
+    autosetupmerge = always
+
+    # Prefer rebase when merging branches
+    autosetuprebase = always
+
+    # Show most recently changed branches first.
+    sort = -committerdate
+[color]
+    # Use colors in Git commands that are capable of colored output when
+    # outputting to the terminal. (This is the default setting in Git ≥ 1.8.4.)
+    ui = auto
+[color "branch"]
+    current = yellow reverse
+    local = yellow
+    remote = green
+[color "diff"]
+    meta = yellow bold
+    frag = magenta bold # line info
+    old = red # deletions
+    new = green # additions
+[color "status"]
+    added = yellow
+    changed = green
+    untracked = cyan
+[core]
+    editor = vim
+
+    # Treat spaces before tabs and all kinds of trailing whitespace as an error.
+    # [default] trailing-space: looks for spaces at the end of a line
+    # [default] space-before-tab: looks for spaces before tabs at the beginning of a line
+    whitespace = space-before-tab,-indent-with-non-tab,trailing-space
+
+    # Make `git rebase` safer on macOS.
+    # More info: <http://www.git-tower.com/blog/make-git-rebase-safe-on-osx/>
+    trustctime = false
+
+    # Prevent showing files whose names contain non-ASCII symbols as unversioned.
+    # http://michael-kuehnel.de/git/2014/11/21/git-mac-osx-and-german-umlaute.html
+    precomposeunicode = false
+
+    # Speed up commands involving untracked files such as `git status`.
+    # https://git-scm.com/docs/git-update-index#_untracked_cache
+    untrackedCache = true
+[diff]
+    algorithm = histogram
+    renamelimit = 8192
+    renames = copies
+[fetch]
+    prune = true
+[filter "lfs"]
+    clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
+    required = true
+[gitget]
+    root = ~/src
+[help]
+    # Automatically correct and execute mistyped commands.
+    autocorrect = 1
+[init]
+    defaultBranch = main
+[pager]
+    branch = false
+    grep = false
+[push]
+    # https://git-scm.com/docs/git-config#git-config-pushdefault
+    default = simple
+    # Make `git push` push relevant annotated tags when pushing branches out.
+    followTags = true
+[rebase]
+    autosquash = true
+    autostash = true
+[rerere]
+    # Remember my merges
+    # http://gitfu.wordpress.com/2008/04/20/git-rerere-rereremember-what-you-did-last-time/
+    enabled = true
+[status]
+    submoduleSummary = true
+[trim]
+    bases = main,master,gh-pages
+
+# URL shorthands
+
+[url "git@github.com:"]
+    insteadOf = "gh:"
+    pushInsteadOf = "github:"
+    pushInsteadOf = "git://github.com/"
+[url "git://github.com/"]
+    insteadOf = "github:"
+[url "git@gist.github.com:"]
+    insteadOf = "gst:"
+    pushInsteadOf = "gist:"
+    pushInsteadOf = "git://gist.github.com/"
+[url "git://gist.github.com/"]
+    insteadOf = "gist:"
+{{/* vim: set filetype=gitconfig: */}}

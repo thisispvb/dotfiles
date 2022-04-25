@@ -1,0 +1,94 @@
+{{- if (eq .chezmoi.os "darwin") -}}
+#!/bin/bash
+
+set -eufo pipefail
+
+{{ $taps := list
+     "homebrew/cask-drivers"
+     "homebrew/cask-fonts"
+     "homebrew/cask-versions"
+     "bramstein/webfonttools" -}}
+{{ $brews := list
+     "ack"
+     "bat"
+     "coreutils"
+     "curl"
+     "dockutil"
+     "exa"
+     "ffmpeg"
+     "findutils"
+     "gh"
+     "git-lfs"
+     "git"
+     "gnu-sed"
+     "gnu-units"
+     "gnupg"
+     "grep"
+     "imagemagick"
+     "jq"
+     "moreutils"
+     "openjdk"
+     "openssh"
+     "pv"
+     "rename"
+     "screen"
+     "speedtest_cli"
+     "ssh-copy-id"
+     "testssl"
+     "tldr"
+     "tmux"
+     "tree"
+     "vbindiff"
+     "vim"
+     "wget"
+     "zopfli"
+     "zsh" -}}
+{{ $casks := list
+    "1password-cli"
+    "1password"
+    "coconutbattery"
+    "docker"
+    "firefox"
+    "google-chrome-canary"
+    "google-chrome"
+    "iterm2"
+    "loom"
+    "messenger" # FB Messenger
+    "microsoft-remote-desktop"
+    "nordvpn"
+    "notion"
+    "signal"
+    "slack"
+    "sonos"
+    "soundcleod"
+    "sourcetree"
+    "spotify"
+    "visual-studio-code"
+    "vlc"
+    "whatsapp"
+    "zoom" -}}
+{{ $mas := list
+     "1440147259" # adguard-for-safari
+     "775737590" # ia-writer
+     "1039633667" # irvue
+     "441258766" # magnet
+     "1451685025" # wireguard -}}
+
+brew bundle --no-lock --file=/dev/stdin <<EOF
+{{ range ($taps | sortAlpha | uniq) -}}
+tap "{{ . }}"
+{{ end -}}
+
+{{ range ($brews | sortAlpha | uniq) -}}
+brew "{{ . }}"
+{{ end -}}
+
+{{ range ($casks | sortAlpha | uniq) -}}
+cask "{{ . }}"
+{{ end -}}
+
+{{ range ($mas | sortAlpha | uniq) -}}
+mas id: {{ . }}
+{{ end -}}
+EOF
+{{ end -}}

@@ -1,0 +1,16 @@
+#HashKnownHosts no
+
+{{- if eq .chezmoi.os "darwin" }}
+
+Host *
+  AddKeysToAgent yes
+  UseKeychain yes
+{{- end }}
+
+Host github.com
+  User git
+
+# {{- if .dbtlabs }}
+# 
+# {{    onepasswordDocument "philip.vonbargen@dbtlabs.com SSH config" .vault -}}
+# {{- end }}

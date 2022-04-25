@@ -1,0 +1,45 @@
+{{/* boolean feature tags */}}
+{{- $docker := false -}}{{/* true if this machine should have Docker installed */}}
+{{- $kubernetes := false -}}{{/* true if this machine is used for Kubernetes work */}}
+{{- $dbtlabs := false -}}{{/* true if this machine should have dbt Labs secrets from 1Password */}}
+{{- $personal := false -}}{{/* true if this machine should have personal secrets from 1Password */}}
+{{- "" -}}
+
+{{- $osID := .chezmoi.os -}}
+{{- if hasKey .chezmoi.osRelease "id" -}}
+{{-   $osID = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
+{{- end -}}
+
+
+{{/* work around unreliable hostname on darwin */}}
+{{- $hostname := .chezmoi.hostname -}}
+{{- if eq .chezmoi.os "darwin" -}}
+{{-   $computerName := output "scutil" "--get" "ComputerName" | trim -}}
+{{-   if eq $computerName "Philip’s MacBook Air" -}}
+{{-     $hostname = "pvb-mba" -}}
+{{-   else if eq $computerName "Philip’s MacBook Pro 14" -}}
+{{-     $hostname = "pvb-dbt-mbp" -}}
+{{-   else -}}
+{{-     $hostname = $computerName -}}
+{{-   end -}}
+{{- end -}}
+
+{{- if eq $hostname "philips-pc" -}}
+{{-   $docker = true -}}
+{{-   $personal = true -}}
+{{- else if eq $hostname "pvb-mba" -}}
+{{-   $personal = true -}}
+{{- else if eq $hostname "pvb-dbt-mbp" -}}
+{{-   $dbtlabs = true -}}
+{{-   $kubernetes = true -}}
+{{- end -}}
+
+[data]
+    docker = {{ $docker }}
+    hostname = {{ $hostname | quote }}
+    kubernetes = {{ $kubernetes }}
+    personal = {{ $personal }}
+    osid = {{ $osID | quote }}
+    #vault = "hlnmluqkhsy4qcululpgt6uzvu"
+[diff]
+    exclude = ["externals"]
