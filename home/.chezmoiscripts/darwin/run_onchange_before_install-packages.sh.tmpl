@@ -53,7 +53,7 @@ set -eufo pipefail
     "google-chrome"
     "iterm2"
     "loom"
-    "messenger" # FB Messenger
+    "messenger"
     "microsoft-remote-desktop"
     "nordvpn"
     "notion"
@@ -67,12 +67,6 @@ set -eufo pipefail
     "vlc"
     "whatsapp"
     "zoom" -}}
-{{ $mas := list
-     "1440147259" # adguard-for-safari
-     "775737590" # ia-writer
-     "1039633667" # irvue
-     "441258766" # magnet
-     "1451685025" # wireguard -}}
 
 brew bundle --no-lock --file=/dev/stdin <<EOF
 {{ range ($taps | sortAlpha | uniq) -}}
@@ -87,8 +81,10 @@ brew "{{ . }}"
 cask "{{ . }}"
 {{ end -}}
 
-{{ range ($mas | sortAlpha | uniq) -}}
-mas id: {{ . }}
-{{ end -}}
+mas "adguard-for-safari", id: 1440147259
+mas "ia-writer", id: 775737590
+mas "irvue", id: 1039633667
+mas "magnet", id: 441258766
+mas "wireguard", id: 1451685025
 EOF
 {{ end -}}

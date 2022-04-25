@@ -1,5 +1,7 @@
-#{{- if .personal -}}
-#{{-   (index (lastpass "p@bargen.co SSH key") 0).note.privateKey -}}
-#{{- else if .dbtlabs -}}
-#{{-   onepasswordDocument "philip.vonbargen@dbtlabs.com SSH private key" .vault -}}
-#{{- end -}}
+{{/*
+  {{- if .personal -}}
+  {{-   (index (lastpass "p@bargen.co SSH key") 0).note.privateKey -}}
+  {{- else if .dbtlabs -}}
+  {{-   onepasswordDocument "philip.vonbargen@dbtlabs.com SSH private key" .vault -}}
+  {{- end -}}
+*/}}
