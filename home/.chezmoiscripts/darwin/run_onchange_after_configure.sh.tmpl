@@ -69,29 +69,24 @@ defaults write com.google.Chrome.canary AppleEnableMouseSwipeNavigateWithScrolls
 sudo nvram StartupMute=%01
 
 for dockItemLabel in \
-	Launchpad \
-	Safari \
-	Mail \
-	FaceTime \
-	Messages \
-	Maps \
-	Photos \
-	Contacts \
-	Calendar \
-	Reminders \
-	Notes \
-	Music \
-	Podcasts \
-	TV \
-	News \
-	Numbers \
-	Keynote \
-	Pages \
-    "Google Chrome Canary" \
-    "Google Chrome" \
-	"App Store" \
-	"System Preferences" ; do
-	dockutil --find "$dockItemLabel" >/dev/null && dockutil --no-restart --remove "$dockItemLabel"
+  Launchpad \
+  Mail \
+  FaceTime \
+  Maps \
+  Photos \
+  Contacts \
+  Reminders \
+  Notes \
+  Music \
+  Podcasts \
+  TV \
+  News \
+  Numbers \
+  Keynote \
+  Pages \
+  "App Store" \
+  "System Preferences" ; do
+  dockutil --find "$dockItemLabel" >/dev/null && dockutil --no-restart --remove "$dockItemLabel"
 done
 
 killall Dock
