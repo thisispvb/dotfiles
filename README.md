@@ -1,23 +1,21 @@
 # github.com/thisispvb/dotfiles
 
-Philip von Bargen's dotfiles, managed with [`chezmoi`](https://github.com/twpayne/chezmoi).
+Philip's dotfiles, managed with [`chezmoi`](https://github.com/twpayne/chezmoi).
 
-Install them with:
+Install and apply them with:
 
-```
-chezmoi init thisispvb
-```
+    chezmoi init --apply thisispvb
+
+    # alternatively if `chezmoi` isn't installed yet:
+    sh -c "$(curl -fsLS chezmoi.io/get)" -- init --apply thisispvb
 
 Personal/Work secrets are stored in [1Password](https://1password.com/), and you'll need
-the [1Password
-CLI](https://support.1password.com/command-line-getting-started/) installed.
+the [1Password CLI](https://developer.1password.com/docs/cli/get-started) installed.
 Login to 1Password for the first time with:
 
-```
-eval $(op signin <subdomain>.1password.com <email>)
-```
+    op account add --address my.1password.eu --email p@bargen.co
+    eval $(op signin)
 
 Then, to login afterwards, run:
-```
-eval $(op signin)
-```
+
+    eval $(op signin)
