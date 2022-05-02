@@ -93,19 +93,11 @@ export HOMEBREW_NO_AUTO_UPDATE=1
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
-{{/*
-{{- if .personal }}
-{{-   if eq .chezmoi.os "darwin" }}
-export HOMEBREW_GITHUB_API_TOKEN={{ (index (lastpass "Github Homebrew Access Token") 0).password }}
-export LPASS_PINENTRY=/opt/homebrew/bin/pinentry-mac
-{{-   end }}
+{{- if .dbtlabs }}
+export GIT_PROJECTS_WORKDIR="$HOME/git/dbtlabs"
+export GITHUB_TOKEN="{{ (onepasswordDetailsFields "hxdgcuauwjbmjo3e7pbqgk5rm4" .vault).credential.value }}"
+export HOMEBREW_GITHUB_API_TOKEN="{{ (onepasswordDetailsFields "hxdgcuauwjbmjo3e7pbqgk5rm4" .vault).credential.value }}"
 {{- end }}
-
-# {{- if .dbtlabs }}
-# export GITHUB_TOKEN={{ (onepasswordDetailsFields "dbtlabs GitHub token" .vault_personal).password.value }}
-# export HOMEBREW_GITHUB_API_TOKEN={{ (onepasswordDetailsFields "dbtlabs Homebrew GitHub API token" .vault_personal).password.value }}
-# {{- end }}
-*/}}
 
 # direnv
 which direnv >/dev/null && eval "$(direnv hook zsh)"

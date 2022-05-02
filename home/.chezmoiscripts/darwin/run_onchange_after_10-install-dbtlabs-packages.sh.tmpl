@@ -1,0 +1,48 @@
+{{- if .dbtlabs -}}
+{{- if (eq .chezmoi.os "darwin") -}}
+#!/usr/bin/env bash
+
+set -eufo pipefail
+
+echo "📦 Installing dbt Labs packages"
+
+brew bundle --no-lock --file=/dev/stdin <<EOF
+tap "dbt-labs/dbt-int", "git@github.com:dbt-labs/homebrew-dbt-int.git"
+tap "argoproj/tap"
+tap "derailed/k9s"
+tap "go-task/tap"
+
+brew "devspace"
+brew "docker"
+brew "go"
+brew "kubectl"
+brew "libpq"
+brew "rbenv"
+
+# python
+# start https://github.com/pyenv/pyenv/wiki#suggested-build-environment
+brew "openssl"
+brew "readline"
+brew "sqlite3"
+brew "xz"
+brew "zlib"
+# end https://github.com/pyenv/pyenv/wiki#suggested-build-environment
+# brew "python"
+# brew "python3"
+brew "pyenv"
+brew "pyenv-virtualenv"
+
+# AWS CLI - needs to be installed after python
+brew "awscli"
+
+# Tapped repos
+brew "dbt-labs/dbt-int/dbt-fsh"
+brew "argoproj/tap/kubectl-argo-rollouts"
+brew "derailed/k9s/k9s"
+brew "go-task/tap/go-task"
+
+cask "aws-vpn-client"
+
+EOF
+{{ end -}}
+{{ end -}}
