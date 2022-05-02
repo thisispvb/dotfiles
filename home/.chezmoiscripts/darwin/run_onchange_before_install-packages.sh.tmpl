@@ -68,6 +68,11 @@ set -eufo pipefail
     "whatsapp"
     "zoom" -}}
 
+{{ if .dbtlabs -}}
+{{  $casks = concat $casks (list
+      "aws-vpn-client") -}}
+{{ end -}}
+
 brew bundle --no-lock --file=/dev/stdin <<EOF
 {{ range ($taps | sortAlpha | uniq) -}}
 tap "{{ . }}"
