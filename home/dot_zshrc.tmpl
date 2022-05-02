@@ -61,8 +61,7 @@ ZSH_DISABLE_COMPFIX=true
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(
-  per-directory-history
+plugins=(history
   vi-mode
   zsh-syntax-highlighting
 )
@@ -103,8 +102,8 @@ export LPASS_PINENTRY=/opt/homebrew/bin/pinentry-mac
 {{- end }}
 
 # {{- if .dbtlabs }}
-# export GITHUB_TOKEN={{ (onepasswordDetailsFields "dbtlabs GitHub token" .vault).password.value }}
-# export HOMEBREW_GITHUB_API_TOKEN={{ (onepasswordDetailsFields "dbtlabs Homebrew GitHub API token" .vault).password.value }}
+# export GITHUB_TOKEN={{ (onepasswordDetailsFields "dbtlabs GitHub token" .vault_personal).password.value }}
+# export HOMEBREW_GITHUB_API_TOKEN={{ (onepasswordDetailsFields "dbtlabs Homebrew GitHub API token" .vault_personal).password.value }}
 # {{- end }}
 */}}
 
