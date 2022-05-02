@@ -3,6 +3,8 @@
 
 set -eufo pipefail
 
+echo "📦 Installing general packages"
+
 {{ $taps := list
     "homebrew/cask-drivers"
     "homebrew/cask-fonts"
@@ -67,11 +69,6 @@ set -eufo pipefail
     "vlc"
     "whatsapp"
     "zoom" -}}
-
-{{ if .dbtlabs -}}
-{{  $casks = concat $casks (list
-      "aws-vpn-client") -}}
-{{ end -}}
 
 brew bundle --no-lock --file=/dev/stdin <<EOF
 {{ range ($taps | sortAlpha | uniq) -}}
