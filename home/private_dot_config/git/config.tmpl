@@ -99,6 +99,7 @@
   # Speed up commands involving untracked files such as `git status`.
   # https://git-scm.com/docs/git-update-index#_untracked_cache
   untrackedCache = true
+  excludesfile = {{ .chezmoi.homeDir }}/.config/git/ignore
 
 [diff]
   algorithm = histogram
@@ -162,7 +163,7 @@
 {{- if not (eq .chezmoi.os "windows") }}
 # Include additional configs for specific (sub-)folders
 [includeIf "gitdir:**/dbtlabs/*/"]
-	path = ~/.config/git/dbtlabs.com
+  path = "{{ .chezmoi.homeDir }}/.config/git/dbtlabs.com"
 {{- end }}
 
 # URL shorthands

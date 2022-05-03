@@ -35,12 +35,13 @@
 {{- end -}}
 
 [data]
-    docker = {{ $docker }}
-    hostname = {{ $hostname | quote }}
-    kubernetes = {{ $kubernetes }}
-    dbtlabs = {{ $dbtlabs }}
-    personal = {{ $personal }}
-    osid = {{ $osID | quote }}
-    vault = "dy6pemkojjapnjhhspqmii4ulq"
+  docker = {{ $docker }}
+  hostname = {{ $hostname | quote }}
+  kubernetes = {{ $kubernetes }}
+  dbtlabs = {{ $dbtlabs }}
+  personal = {{ $personal }}
+  osid = {{ $osID | quote }}
+  vault = "dy6pemkojjapnjhhspqmii4ulq"
+  version_node = "16.15.0"
 [diff]
-    exclude = ["externals"]
+  exclude = ["externals"]
