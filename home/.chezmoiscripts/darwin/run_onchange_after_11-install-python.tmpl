@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-set -eufo pipefail
-
-PYTHON_VERSION={{ .version_python }}
-
-echo "📦 Installing Python version \"$PYTHON_VERSION\" via pyenv."
-
-pyenv install $PYTHON_VERSION || true
-pyenv global $PYTHON_VERSION
