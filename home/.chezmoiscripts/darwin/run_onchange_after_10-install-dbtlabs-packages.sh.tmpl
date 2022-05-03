@@ -12,36 +12,25 @@ tap "argoproj/tap"
 tap "derailed/k9s"
 tap "go-task/tap"
 
+brew "awscli"
 brew "devspace"
 brew "docker"
 brew "go"
 brew "kubectl"
 brew "libpq"
+brew "pre-commit"
+brew "pyenv-virtualenv"
+brew "pyenv"
 brew "rbenv"
 
-# python
-# start https://github.com/pyenv/pyenv/wiki#suggested-build-environment
-brew "openssl"
-brew "readline"
-brew "sqlite3"
-brew "xz"
-brew "zlib"
-# end https://github.com/pyenv/pyenv/wiki#suggested-build-environment
-# brew "python"
-# brew "python3"
-brew "pyenv"
-brew "pyenv-virtualenv"
-
-# AWS CLI - needs to be installed after python
-brew "awscli"
+cask "aws-vpn-client"
+cask "postico"
 
 # Tapped repos
 brew "dbt-labs/dbt-int/dbt-fsh"
 brew "argoproj/tap/kubectl-argo-rollouts"
 brew "derailed/k9s/k9s"
 brew "go-task/tap/go-task"
-
-cask "aws-vpn-client"
 
 EOF
 {{ end -}}
