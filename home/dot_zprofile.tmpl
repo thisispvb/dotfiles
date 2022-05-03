@@ -13,3 +13,7 @@ fpath+=("$(/usr/local/bin/brew --prefix)/share/zsh/site-functions")
 eval "$(/usr/local/bin/brew shellenv)"
 {{   end -}}
 {{ end -}}
+
+# pyenv
+export PYENV_ROOT="$HOME/.config/pyenv"
+which pyenv >/dev/null && eval "$(pyenv init --path)"
