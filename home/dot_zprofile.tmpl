@@ -14,9 +14,14 @@ eval "$(/usr/local/bin/brew shellenv)"
 {{   end -}}
 {{ end -}}
 
+# go
+export GOPATH=$HOME/go
+export GOROOT="$(brew --prefix golang)/libexec"
+export PATH="$PATH:${GOPATH}/bin:${GOROOT}/bin"
+
 # pyenv
 export PYENV_ROOT="${XDG_CONFIG_HOME:-$HOME/.config}/pyenv"
-which pyenv >/dev/null && eval "$(pyenv init --path)"
+which pyenv >/dev/null && eval "$(pyenv init --path)" && eval "$(pyenv virtualenv-init -)"
 
 # rbenv
 export RBENV_ROOT="${XDG_CONFIG_HOME:-$HOME/.config}/rbenv"
