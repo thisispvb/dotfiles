@@ -7,7 +7,6 @@ set -eufo pipefail
 echo "📦 Installing dbt Labs packages"
 
 brew bundle --no-lock --file=/dev/stdin <<EOF
-tap "dbt-labs/dbt"
 tap "dbt-labs/dbt-int", "git@github.com:dbt-labs/homebrew-dbt-int.git"
 tap "argoproj/tap"
 tap "derailed/k9s"
@@ -17,6 +16,7 @@ brew "awscli"
 brew "devspace"
 brew "docker"
 brew "go"
+brew "helm"
 brew "kubectl"
 brew "libpq"
 brew "pre-commit"
@@ -28,7 +28,6 @@ cask "aws-vpn-client"
 cask "postico"
 
 # Tapped repos
-brew "dbt-labs/dbt/dbt"
 brew "dbt-labs/dbt-int/dbt-fsh"
 brew "argoproj/tap/kubectl-argo-rollouts"
 brew "derailed/k9s/k9s"

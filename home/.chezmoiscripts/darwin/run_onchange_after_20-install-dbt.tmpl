@@ -1,0 +1,16 @@
+{{- if .dbtlabs -}}
+{{- if (eq .chezmoi.os "darwin") -}}
+#!/usr/bin/env bash
+set -eufo pipefail
+
+echo "📦 Installing dbt via pip"
+
+pip install \
+  dbt-core \
+  dbt-postgres \
+  dbt-redshift \
+  dbt-snowflake \
+  dbt-bigquery
+
+{{ end -}}
+{{ end -}}
