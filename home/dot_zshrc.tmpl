@@ -125,6 +125,45 @@ load-nvmrc() {
 add-zsh-hook chpwd load-nvmrc
 load-nvmrc
 
+{{- if .dbtlabs }}
+# set_dev_kube <namespace>
+function set_dev_kube() {
+  NAMESPACE="${1:=dbt-cloud}"
+  kubectl config use-context docker-desktop
+  kubectl config set-context docker-desktop --namespace=$NAMESPACE
+  kubectl config get-contexts
+}
+
+# set_stage_kube <namespace>
+function set_stage_kube() {
+  NAMESPACE="${1:=[[SET_TO_YOUR_DEVSPACE_NS]]}"
+  export AWS_PROFILE=staging-poweruser
+  kubectl config use-context dbt-cloud-staging
+  kubectl config set-context dbt-cloud-staging --namespace=$NAMESPACE
+  kubectl config get-contexts
+}
+
+# set_prod_kube
+function set_prod_kube_poweruser {
+  export AWS_PROFILE=prod-poweruser
+  aws sso login
+  kubectl config use-context dbt-cloud-prod
+  kubectl config set-context dbt-cloud-prod --namespace=dbt-cloud
+  kubectl get ns
+  kubectl config get-contexts
+}
+
+# set_prod_kube
+function set_prod_kube {
+  export AWS_PROFILE=prod-viewonly
+  aws sso login
+  kubectl config use-context dbt-cloud-prod
+  kubectl config set-context dbt-cloud-prod --namespace=dbt-cloud
+  kubectl get ns
+  kubectl config get-contexts
+}
+{{- end }}
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
