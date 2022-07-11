@@ -138,8 +138,18 @@ function set_dev_kube() {
 function set_stage_kube() {
   NAMESPACE="${1:=[[SET_TO_YOUR_DEVSPACE_NS]]}"
   export AWS_PROFILE=staging-poweruser
+  aws sso login
   kubectl config use-context dbt-cloud-staging
   kubectl config set-context dbt-cloud-staging --namespace=$NAMESPACE
+  kubectl config get-contexts
+}
+
+# set_stage_kube_admin
+function set_stage_kube_admin() {
+  export AWS_PROFILE=staging-admin
+  aws sso login
+  kubectl config use-context dbt-cloud-staging
+  kubectl config set-context dbt-cloud-staging
   kubectl config get-contexts
 }
 
