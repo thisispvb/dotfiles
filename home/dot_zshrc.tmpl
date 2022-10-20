@@ -126,34 +126,34 @@ add-zsh-hook chpwd load-nvmrc
 load-nvmrc
 
 {{- if .dbtlabs }}
-# set_dev_kube <namespace>
-function set_dev_kube() {
+# set_local_kube <namespace>
+function set_local_kube() {
   NAMESPACE="${1:=dbt-cloud}"
   kubectl config use-context docker-desktop
   kubectl config set-context docker-desktop --namespace=$NAMESPACE
   kubectl config get-contexts
 }
 
-# set_stage_kube <namespace>
-function set_stage_kube() {
-  NAMESPACE="${1:=[[SET_TO_YOUR_DEVSPACE_NS]]}"
-  export AWS_PROFILE=staging-poweruser
+# set_dev_kube <namespace>
+function set_dev_kube() {
+  NAMESPACE="${1:=dev-$USER}"
+  export AWS_PROFILE=dev-poweruser
   aws sso login
-  kubectl config use-context dbt-cloud-staging
-  kubectl config set-context dbt-cloud-staging --namespace=$NAMESPACE
+  kubectl config use-context dbt-labs-dev
+  kubectl config set-context dbt-labs-dev --namespace=$NAMESPACE
   kubectl config get-contexts
 }
 
-# set_stage_kube_admin
-function set_stage_kube_admin() {
-  export AWS_PROFILE=staging-admin
+# set_dev_kube_admin
+function set_dev_kube_admin() {
+  export AWS_PROFILE=dev-admin
   aws sso login
-  kubectl config use-context dbt-cloud-staging
-  kubectl config set-context dbt-cloud-staging
+  kubectl config use-context dbt-labs-dev
+  kubectl config set-context dbt-labs-dev
   kubectl config get-contexts
 }
 
-# set_prod_kube
+# set_prod_kube_poweruser
 function set_prod_kube_poweruser {
   export AWS_PROFILE=prod-poweruser
   aws sso login
