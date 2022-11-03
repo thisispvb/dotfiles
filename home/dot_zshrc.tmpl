@@ -62,6 +62,7 @@ ZSH_DISABLE_COMPFIX=true
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(history
+  asdf
   aws
   kubectl
   vi-mode
@@ -100,30 +101,6 @@ export GIT_PROJECTS_WORKDIR="$HOME/git/dbtlabs"
 export GITHUB_TOKEN="{{ (onepasswordDetailsFields "hxdgcuauwjbmjo3e7pbqgk5rm4" .vault).credential.value }}"
 export HOMEBREW_GITHUB_API_TOKEN="{{ (onepasswordDetailsFields "hxdgcuauwjbmjo3e7pbqgk5rm4" .vault).credential.value }}"
 {{- end }}
-
-# Autoload .nvmrc
-# TODO: switch over to `nvm` ZSH plugin once that works again
-export NVM_AUTOLOAD=1
-autoload -U add-zsh-hook
-load-nvmrc() {
-  local node_version="$(nvm version)"
-  local nvmrc_path="$(nvm_find_nvmrc)"
-
-  if [ -n "$nvmrc_path" ]; then
-    local nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
-
-    if [ "$nvmrc_node_version" = "N/A" ]; then
-      nvm install
-    elif [ "$nvmrc_node_version" != "$node_version" ]; then
-      nvm use
-    fi
-  elif [ "$node_version" != "$(nvm version default)" ]; then
-    echo "Reverting to nvm default version"
-    nvm use default
-  fi
-}
-add-zsh-hook chpwd load-nvmrc
-load-nvmrc
 
 {{- if .dbtlabs }}
 # set_local_kube <namespace>

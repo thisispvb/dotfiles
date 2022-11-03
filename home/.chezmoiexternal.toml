@@ -19,12 +19,6 @@
   url = "https://github.com/romkatv/powerlevel10k/archive/v1.16.1.tar.gz"
   exact = true
   stripComponents = 1
-[".config/nvm"]
-  type = "git-repo"
-  url = "https://github.com/nvm-sh/nvm.git"
-  refreshPeriod = "168h"
-  [".config/nvm".pull]
-    args = ["--ff-only"]
 {{- if eq .chezmoi.os "linux" }}
 {{- $ageVersion := "1.0.0" }}
 [".local/bin/age"]

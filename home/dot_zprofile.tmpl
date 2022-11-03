@@ -25,16 +25,3 @@ which direnv >/dev/null && eval "$(direnv hook zsh)"
 export GOPATH=$HOME/go
 export GOROOT="$(brew --prefix golang)/libexec"
 export PATH="$PATH:${GOPATH}/bin:${GOROOT}/bin"
-
-# pyenv
-export PYENV_ROOT="${XDG_CONFIG_HOME:-$HOME/.config}/pyenv"
-which pyenv >/dev/null && eval "$(pyenv init --path)" && eval "$(pyenv virtualenv-init -)"
-
-# rbenv
-export RBENV_ROOT="${XDG_CONFIG_HOME:-$HOME/.config}/rbenv"
-which rbenv >/dev/null && eval "$(rbenv init -)"
-
-# nvm
-export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
