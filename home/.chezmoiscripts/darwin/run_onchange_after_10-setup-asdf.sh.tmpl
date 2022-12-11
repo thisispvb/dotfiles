@@ -1,0 +1,27 @@
+{{- if (eq .chezmoi.os "darwin") -}}
+#!/usr/bin/env bash
+
+set -eufo pipefail
+
+echo "📦 Setting up asdf (+ installing plugins & tools)"
+
+INSTALLED_PLUGINS=$(asdf plugin list)
+
+if ! grep -q "nodejs" <<< "$INSTALLED_PLUGINS"; then
+  # echo "node plugin is not installed"
+  asdf plugin add nodejs
+fi
+
+if ! grep -q "python" <<< "$INSTALLED_PLUGINS"; then
+  # echo "python plugin is not installed"
+  asdf plugin add python
+fi
+
+if ! grep -q "ruby" <<< "$INSTALLED_PLUGINS"; then
+  # echo "ruby plugin is not installed"
+  asdf plugin add ruby
+fi
+
+asdf plugin update --all
+asdf install
+{{ end -}}
