@@ -8,20 +8,30 @@ echo "📦 Setting up asdf (+ installing plugins & tools)"
 INSTALLED_PLUGINS=$(asdf plugin list)
 
 if ! grep -q "nodejs" <<< "$INSTALLED_PLUGINS"; then
-  # echo "node plugin is not installed"
   asdf plugin add nodejs
 fi
 
+if ! grep -q "pnpm" <<< "$INSTALLED_PLUGINS"; then
+  asdf plugin add pnpm
+fi
+
 if ! grep -q "python" <<< "$INSTALLED_PLUGINS"; then
-  # echo "python plugin is not installed"
   asdf plugin add python
 fi
 
 if ! grep -q "ruby" <<< "$INSTALLED_PLUGINS"; then
-  # echo "ruby plugin is not installed"
   asdf plugin add ruby
 fi
 
+{{if .dbtlabs -}}
+if ! grep -q "helm" <<< "$INSTALLED_PLUGINS"; then
+  asdf plugin add helm
+fi
+{{- end}}
+
+echo "Updating asdf plugins..."
 asdf plugin update --all
+
+echo "Installing asdf versions..."
 asdf install
 {{ end -}}
