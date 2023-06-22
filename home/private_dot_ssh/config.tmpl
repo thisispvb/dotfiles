@@ -11,3 +11,10 @@ Host *
 
 Host github.com
   User git
+
+{{ if .dbtlabs -}}
+# DevSpace Start
+Match all
+Include devspace_config
+# DevSpace End
+{{- end }}
