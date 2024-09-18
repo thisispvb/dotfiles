@@ -6,9 +6,6 @@ set -eufo pipefail
 echo "📦 Installing general packages"
 
 {{ $taps := list
-  "homebrew/cask-drivers"
-  "homebrew/cask-fonts"
-  "homebrew/cask-versions"
   "bramstein/webfonttools" -}}
 {{ $brews := list
   "ack"
@@ -66,7 +63,6 @@ echo "📦 Installing general packages"
   "sonos"
   "sourcetree"
   "spotify"
-  "veracrypt"
   "visual-studio-code"
   "vlc"
   "whatsapp"
