@@ -1,0 +1,12 @@
+{{- if (eq .chezmoi.os "darwin") -}}
+#!/usr/bin/env bash
+
+mkdir -p ~/bin
+mkdir -p ~/git
+mkdir -p ~/Obsidian
+
+chmod go-rwx ~/bin
+chmod go-rwx ~/git
+chmod go-rwx ~/Obsidian
+
+{{ end -}}
