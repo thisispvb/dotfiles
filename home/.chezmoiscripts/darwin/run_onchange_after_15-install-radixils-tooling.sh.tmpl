@@ -1,0 +1,12 @@
+{{- if .radixils -}}
+{{- if (eq .chezmoi.os "darwin") -}}
+#!/usr/bin/env bash
+
+set -eufo pipefail
+
+echo "📦 Configuring Radix ILS tooling"
+
+docker buildx install
+
+{{ end -}}
+{{ end -}}

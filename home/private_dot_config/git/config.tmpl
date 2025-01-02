@@ -162,8 +162,8 @@
 
 {{- if not (eq .chezmoi.os "windows") }}
 # Include additional configs for specific (sub-)folders
-[includeIf "gitdir:**/dbtlabs/*/"]
-  path = "{{ .chezmoi.homeDir }}/.config/git/dbtlabs.com"
+[includeIf "gitdir:**/rdx/*/"]
+  path = "{{ .chezmoi.homeDir }}/.config/git/radixils.com"
 {{- end }}
 
 # URL shorthands
@@ -179,7 +179,7 @@
   pushInsteadOf = "git://gist.github.com/"
 [url "git://gist.github.com/"]
   insteadOf = "gist:"
-[url "git@github.com:dbt-labs"]
-  insteadOf = https://github.com/dbt-labs
+[url "git@github.com:RadixILS-Dev/"]
+  insteadOf = https://github.com/RadixILS-Dev/
 
 {{/* vim: set filetype=gitconfig: */}}

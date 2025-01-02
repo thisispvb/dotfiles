@@ -1,0 +1,23 @@
+{{- if .radixils -}}
+{{- if (eq .chezmoi.os "darwin") -}}
+#!/usr/bin/env bash
+
+set -eufo pipefail
+
+echo "📦 Installing Radix ILS packages"
+
+brew bundle --no-lock --file=/dev/stdin <<EOF
+
+brew "awscli"
+brew "colima"
+brew "docker-buildx"
+brew "k9s"
+brew "libpq"
+brew "openssl"
+brew "postgresql"
+brew "skaffold"
+brew "uv"
+
+EOF
+{{ end -}}
+{{ end -}}

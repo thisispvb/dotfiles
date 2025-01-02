@@ -1,0 +1,10 @@
+{{- if .radixils -}}
+[profile PowerUserAccess-715841355729]
+sso_session = Radix ILS
+sso_account_id = 715841355729
+sso_role_name = PowerUserAccess
+[sso-session 'Radix ILS']
+sso_start_url = https://d-9067dbdb78.awsapps.com/start/#
+sso_region = us-east-1
+sso_registration_scopes = sso:account:access
+{{ end -}}

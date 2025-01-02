@@ -66,6 +66,7 @@ plugins=(history
   aws
   colorize
   kubectl
+  virtualenv
   vi-mode
   zsh-autosuggestions
   zsh-syntax-highlighting
@@ -98,60 +99,22 @@ export HOMEBREW_NO_AUTO_UPDATE=1
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
-{{- if .dbtlabs }}
-export AWS_USER="philip.vonbargen"
-export GIT_PROJECTS_WORKDIR="$HOME/git/dbtlabs"
-export GITHUB_TOKEN="{{ (onepasswordDetailsFields "hxdgcuauwjbmjo3e7pbqgk5rm4" .vault).credential.value }}"
-export HOMEBREW_GITHUB_API_TOKEN="{{ (onepasswordDetailsFields "hxdgcuauwjbmjo3e7pbqgk5rm4" .vault).credential.value }}"
-{{- end }}
+{{- if .radixils }}
+export LDFLAGS="-L$(brew --prefix openssl)/lib" # psycopg2
+export CPPFLAGS="-I$(brew --prefix openssl)/include" # psycopg2
+export AWS_PROFILE="PowerUserAccess-715841355729"
+export GIT_PROJECTS_WORKDIR="$HOME/git/rdx"
+#export GITHUB_TOKEN="{{ (onepasswordDetailsFields "hxdgcuauwjbmjo3e7pbqgk5rm4" .vault).credential.value }}"
 
-{{- if .dbtlabs }}
-# set_local_kube <namespace>
-function set_local_kube() {
-  NAMESPACE="${1:=dbt-cloud}"
-  kubectl config use-context docker-desktop
-  kubectl config set-context docker-desktop --namespace=$NAMESPACE
-  kubectl config get-contexts
-}
-
-# set_dev_kube <namespace>
-function set_dev_kube() {
-  NAMESPACE="${1:=dev-$USER}"
-  export AWS_PROFILE=dev-poweruser
-  aws sso login
-  kubectl config use-context dbt-labs-dev
-  kubectl config set-context dbt-labs-dev --namespace=$NAMESPACE
-  kubectl config get-contexts
-}
-
-# set_dev_kube_admin
-function set_dev_kube_admin() {
-  export AWS_PROFILE=dev-admin
-  aws sso login
-  kubectl config use-context dbt-labs-dev
-  kubectl config set-context dbt-labs-dev
-  kubectl config get-contexts
-}
-
-# set_prod_kube_poweruser
-function set_prod_kube_poweruser {
-  export AWS_PROFILE=prod-poweruser
-  aws sso login
-  kubectl config use-context dbt-cloud-prod
-  kubectl config set-context dbt-cloud-prod --namespace=dbt-cloud
-  kubectl get ns
-  kubectl config get-contexts
-}
-
-# set_prod_kube
-function set_prod_kube {
-  export AWS_PROFILE=prod-viewonly
-  aws sso login
-  kubectl config use-context dbt-cloud-prod
-  kubectl config set-context dbt-cloud-prod --namespace=dbt-cloud
-  kubectl get ns
-  kubectl config get-contexts
-}
+export RDX_FLASK_SECRET_KEY=LOCAL_RDX_FLASK_SECRET_KEY
+export RDX_HOST=localhost
+export RDX_PORT=5000
+export RDX_INTERNAL_API_TOKEN=LOCAL_RDX_INTERNAL_API_TOKEN
+export RDX_STORE_LOCAL=1
+export RDX_STORE_BUCKET=rdx-store
+export RDX_STORE_PREFIX=dev
+#export RDX_LOGGER_DEBUG=1
+#export RDX_LOGGER_SQL_DEBUG=1
 {{- end }}
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
