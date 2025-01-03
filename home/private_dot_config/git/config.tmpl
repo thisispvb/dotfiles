@@ -163,7 +163,7 @@
 {{- if not (eq .chezmoi.os "windows") }}
 # Include additional configs for specific (sub-)folders
 [includeIf "gitdir:**/rdx/*/"]
-  path = "{{ .chezmoi.homeDir }}/.config/git/radixils.com"
+  path = "{{ .chezmoi.homeDir }}/.config/git/radixils"
 {{- end }}
 
 # URL shorthands
