@@ -65,6 +65,7 @@ plugins=(history
   asdf
   aws
   colorize
+  direnv
   kubectl
   virtualenv
   vi-mode
@@ -105,23 +106,6 @@ export CPPFLAGS="-I$(brew --prefix openssl)/include" # psycopg2
 export AWS_PROFILE="PowerUserAccess-715841355729"
 export GIT_PROJECTS_WORKDIR="$HOME/git/rdx"
 #export GITHUB_TOKEN="{{ (onepasswordDetailsFields "hxdgcuauwjbmjo3e7pbqgk5rm4" .vault).credential.value }}"
-
-export RDX_FLASK_SECRET_KEY=LOCAL_RDX_FLASK_SECRET_KEY
-export RDX_HOST=localhost
-export RDX_PORT=5000
-export RDX_INTERNAL_API_TOKEN=LOCAL_RDX_INTERNAL_API_TOKEN
-export RDX_STORE_LOCAL=1
-export RDX_STORE_BUCKET=rdx-store
-export RDX_STORE_PREFIX=dev
-export RDX_ENABLE_SSO=1
-export RDX_FLASK_AZURE_OAUTH_TENANT_ID="{{ (onepasswordDetailsFields "mlpjmhifhli67kfxfdmwtpgnea" .vault).qix7rpio2sb2iup6vi3uwnd7di.value }}"
-export RDX_FLASK_AZURE_OAUTH_CLIENT_ID="{{ (onepasswordDetailsFields "mlpjmhifhli67kfxfdmwtpgnea" .vault).kmqknljfbjpncbxidj3eez7zy4.value }}"
-export RDX_FLASK_AZURE_OAUTH_CLIENT_SECRET="{{ (onepasswordDetailsFields "mlpjmhifhli67kfxfdmwtpgnea" .vault).hw2wy5z225ziouklpydwt45ufa.value }}"
-export RDX_VALKEY_HOST=127.0.0.1
-export RDX_VALKEY_PORT=6379
-
-#export RDX_LOGGER_DEBUG=1
-#export RDX_LOGGER_SQL_DEBUG=1
 {{- end }}
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
