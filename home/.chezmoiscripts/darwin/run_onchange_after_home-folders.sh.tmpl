@@ -1,12 +1,24 @@
 {{- if (eq .chezmoi.os "darwin") -}}
 #!/usr/bin/env bash
 
-mkdir -p ~/bin
-mkdir -p ~/git
-mkdir -p ~/Obsidian
+{{ $folders := list
+  "~/.asdf"
+  "~/.cache"
+  "~/.config"
+  "~/.gk"
+  "~/.npm"
+  "~/.tldrc"
+  "~/.vscode"
+  "~/bin"
+  "~/git"
+  "~/Obsidian" -}}
 
-chmod go-rwx ~/bin
-chmod go-rwx ~/git
-chmod go-rwx ~/Obsidian
+{{ range ($folders | sortAlpha | uniq) -}}
+if [ ! -d {{ . }} ]; then
+  mkdir {{ . }}
+fi
+
+chmod go-rwx  {{ . }}
+{{ end -}}
 
 {{ end -}}
