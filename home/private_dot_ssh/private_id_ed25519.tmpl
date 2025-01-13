@@ -1,5 +1,3 @@
 {{- if .personal -}}
 {{-   onepasswordDocument ".ssh/id_ed25519" .vault -}}
-{{- else if .dbtlabs -}}
-{{-   onepasswordDocument "dbtlabs/.ssh/id_ed25519" .vault -}}
 {{- end -}}

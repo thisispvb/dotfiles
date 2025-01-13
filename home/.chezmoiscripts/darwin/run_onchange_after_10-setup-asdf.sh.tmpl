@@ -23,12 +23,6 @@ if ! grep -q "ruby" <<< "$INSTALLED_PLUGINS"; then
   asdf plugin add ruby
 fi
 
-{{if .dbtlabs -}}
-if ! grep -q "helm" <<< "$INSTALLED_PLUGINS"; then
-  asdf plugin add helm
-fi
-{{- end}}
-
 echo "Updating asdf plugins..."
 asdf plugin update --all
 

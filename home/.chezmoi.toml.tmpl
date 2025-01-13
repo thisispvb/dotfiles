@@ -2,7 +2,6 @@
 {{- $docker := false -}}{{/* true if this machine should have Docker installed */}}
 {{- $kubernetes := false -}}{{/* true if this machine is used for Kubernetes work */}}
 {{- $radixils := false -}}{{/* true if this machine should have Radix ILS secrets from 1Password */}}
-{{- $dbtlabs := false -}}{{/* true if this machine should have dbt Labs secrets from 1Password */}}
 {{- $personal := false -}}{{/* true if this machine should have personal secrets from 1Password */}}
 {{- "" -}}
 
@@ -40,7 +39,6 @@
   hostname = {{ $hostname | quote }}
   kubernetes = {{ $kubernetes }}
   radixils = {{ $radixils }}
-  dbtlabs = {{ $dbtlabs }}
   personal = {{ $personal }}
   osid = {{ $osID | quote }}
   vault = "dy6pemkojjapnjhhspqmii4ulq"
