@@ -28,4 +28,8 @@ asdf plugin update --all
 
 echo "Installing asdf versions..."
 asdf install
+
+echo "Setting up asdf autocompletions..."
+# asdf completions
+asdf completion zsh > "${ASDF_DATA_DIR:-$HOME/.asdf}/completions/_asdf"
 {{ end -}}

@@ -3,6 +3,7 @@
 
 {{ $folders := list
   "~/.asdf"
+  "~/.asdf/completions"
   "~/.cache"
   "~/.config"
   "~/.gk"
@@ -15,7 +16,7 @@
 
 {{ range ($folders | sortAlpha | uniq) -}}
 if [ ! -d {{ . }} ]; then
-  mkdir {{ . }}
+  mkdir -p {{ . }}
 fi
 
 chmod go-rwx  {{ . }}
