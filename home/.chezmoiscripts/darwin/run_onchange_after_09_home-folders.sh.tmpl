@@ -12,7 +12,7 @@
   "~/.vscode"
   "~/bin"
   "~/git"
-  "~/vaults" -}}
+  "~/Vaults" -}}
 
 {{ range ($folders | sortAlpha | uniq) -}}
 if [ ! -d {{ . }} ]; then
