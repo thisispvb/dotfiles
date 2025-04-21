@@ -1,10 +1,20 @@
 {{- if .radixils -}}
-[profile PowerUserAccess-715841355729]
-sso_session = Radix ILS
+[profile poweruser]
+sso_session = aws-cli-console-on-mac
 sso_account_id = 715841355729
 sso_role_name = PowerUserAccess
-[sso-session 'Radix ILS']
-sso_start_url = https://d-9067dbdb78.awsapps.com/start/#
+region = us-east-1
+output = json
+
+[profile admin]
+sso_session = aws-cli-console-on-mac
+sso_account_id = 715841355729
+sso_role_name = AdministratorAccess
+region = us-east-1
+output = json
+
+[sso-session aws-cli-console-on-mac]
+sso_start_url = https://d-9067dbdb78.awsapps.com/start
 sso_region = us-east-1
 sso_registration_scopes = sso:account:access
 {{ end -}}
