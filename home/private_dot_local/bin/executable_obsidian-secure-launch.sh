@@ -4,7 +4,7 @@ set -eufo pipefail
 
 encryption_key=$(op read "op://Private/macOS Sensitive Vault Image Encryption Key/password")
 vault_name="Obsidian Vaults"
-image_path="$HOME/vaults/$vault_name.dmg"
+image_path="$HOME/Vaults/$vault_name.dmg"
 
 # Create encrypted disk image if it doesn't exist yet
 if [[ ! -f "$image_path" ]]; then
