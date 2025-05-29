@@ -6,7 +6,7 @@ set -eufo pipefail
 
 echo "📦 Installing Radix ILS packages"
 
-brew bundle --no-lock --file=/dev/stdin <<EOF
+brew bundle --file=/dev/stdin <<EOF
 
 brew "awscli"
 brew "colima"
