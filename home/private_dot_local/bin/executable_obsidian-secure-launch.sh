@@ -10,7 +10,7 @@ image_path="$HOME/Vaults/$vault_name.dmg"
 if [[ ! -f "$image_path" ]]; then
   echo "Warning: Disk Image does not exist at \"$image_path\", creating a new one..."
   printf '%s\0' "$encryption_key" | hdiutil create "$image_path" \
-    -size 2g \
+    -size 5g \
     -fs APFS \
     -volname "$vault_name" \
     -type UDIF \
