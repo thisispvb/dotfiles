@@ -42,12 +42,12 @@ defaults write NSGlobalDomain WebAutomaticSpellingCorrectionEnabled -bool false
 defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
 
-defaults write com.apple.dock autohide -bool false
+defaults write com.apple.dock autohide -bool true
 defaults write com.apple.dock autohide-delay -float 0
 #defaults write com.apple.dock autohide-time-modifier -float 0
 defaults write com.apple.dock orientation bottom
 defaults write com.apple.dock show-recents -bool false
-defaults write com.apple.dock tilesize -int 32
+defaults write com.apple.dock tilesize -int 48
 # Hot corners
 # Possible values: 0 no-op; 2 Mission Control; 3 Show application windows; 4 Desktop; 5 Start screen saver; 6 Disable screen saver; 7 Dashboard; 10 Put display to sleep; 11 Launchpad; 12 Notification Center
 defaults write com.apple.dock wvous-tl-corner -int 0
