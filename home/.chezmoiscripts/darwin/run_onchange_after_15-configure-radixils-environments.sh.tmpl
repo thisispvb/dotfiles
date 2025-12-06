@@ -6,20 +6,32 @@ set -eufo pipefail
 
 echo "📦 Installing Radix ILS packages"
 
+
+{{ $brews := list
+  "awscli"
+  "colima"
+  "docker-buildx"
+  "duckdb"
+  "k9s"
+  "libpq"
+  "openssl"
+  "postgresql"
+  "pspg"
+  "skaffold"
+  "uv" -}}
+
+
+{{ $casks := list
+  "tailscale-app" -}}
+
 brew bundle --file=/dev/stdin <<EOF
+{{ range ($brews | sortAlpha | uniq) -}}
+brew "{{ . }}"
+{{ end -}}
 
-brew "awscli"
-brew "colima"
-brew "docker-buildx"
-brew "duckdb"
-brew "k9s"
-brew "libpq"
-brew "openssl"
-brew "postgresql"
-brew "pspg"
-brew "skaffold"
-brew "uv"
-
+{{ range ($casks | sortAlpha | uniq) -}}
+cask "{{ . }}"
+{{ end -}}
 EOF
 {{ end -}}
 {{ end -}}
