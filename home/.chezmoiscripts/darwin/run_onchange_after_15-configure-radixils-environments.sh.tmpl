@@ -35,4 +35,10 @@ cask "{{ . }}"
 {{ end -}}
 EOF
 {{ end -}}
+
+
+echo "📦 Configuring Radix ILS tooling"
+
+duckdb -c "install httpfs; install spatial; install h3 from community"
+
 {{ end -}}
