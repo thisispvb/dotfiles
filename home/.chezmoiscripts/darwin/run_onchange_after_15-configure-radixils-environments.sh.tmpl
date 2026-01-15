@@ -6,6 +6,8 @@ set -eufo pipefail
 
 echo "📦 Installing Radix ILS packages"
 
+{{ $taps := list
+  "hashicorp/tap" -}}
 
 {{ $brews := list
   "awscli"
@@ -13,6 +15,7 @@ echo "📦 Installing Radix ILS packages"
   "docker-buildx"
   "duckdb"
   "go-task"
+  "hashicorp/tap/vault"
   "k9s"
   "libpq"
   "openssl"
@@ -26,6 +29,10 @@ echo "📦 Installing Radix ILS packages"
   "tailscale-app" -}}
 
 brew bundle --file=/dev/stdin <<EOF
+{{ range ($taps | sortAlpha | uniq) -}}
+tap "{{ . }}"
+{{ end -}}
+
 {{ range ($brews | sortAlpha | uniq) -}}
 brew "{{ . }}"
 {{ end -}}
