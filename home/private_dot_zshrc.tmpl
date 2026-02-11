@@ -105,6 +105,7 @@ export LDFLAGS="-L$(brew --prefix openssl)/lib" # psycopg2
 export CPPFLAGS="-I$(brew --prefix openssl)/include" # psycopg2
 export AWS_PROFILE="radix"
 export GIT_PROJECTS_WORKDIR="$HOME/git/rdx"
+export GITHUB_PERSONAL_ACCESS_TOKEN="{{ (onepasswordDetailsFields "n4gyfahbctekzcdibjznxsublm" .vault).credential.value }}"
 export OPENAI_API_KEY="{{ (onepasswordDetailsFields "oczxldxg74agpwh7jdqc6cnmce" .vault).credential.value }}"
 {{- end }}
 

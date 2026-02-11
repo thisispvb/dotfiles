@@ -26,6 +26,8 @@ echo "📦 Installing Radix ILS packages"
 
 
 {{ $casks := list
+  "claude-code"
+  "claude"
   "tailscale-app" -}}
 
 brew bundle --file=/dev/stdin <<EOF
