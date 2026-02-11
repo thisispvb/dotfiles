@@ -3,10 +3,10 @@
     "type": "command",
     "command": "bash ~/.claude/statusline.sh"
   },
-  "notifications": {
-    "enabled": false
-  },
   "enabledPlugins": {
     "code-review@claude-plugins-official": true
+  },
+  "notifications": {
+    "enabled": false
   }
 }

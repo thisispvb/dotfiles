@@ -25,6 +25,14 @@
   url = "https://github.com/romkatv/powerlevel10k/archive/v1.16.1.tar.gz"
   exact = true
   stripComponents = 1
+[".config/iterm2/vscode-light.itermcolors"]
+  type = "file"
+  url = "https://raw.githubusercontent.com/tallpants/vscode-theme-iterm2/master/vscode-light.itermcolors"
+  refreshPeriod = "168h"
+[".config/iterm2/vscode.itermcolors"]
+  type = "file"
+  url = "https://raw.githubusercontent.com/tallpants/vscode-theme-iterm2/master/vscode.itermcolors"
+  refreshPeriod = "168h"
 {{- if eq .chezmoi.os "linux" }}
 {{- $ageVersion := "1.2.1" }}
 [".local/bin/age"]
