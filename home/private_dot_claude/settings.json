@@ -5,6 +5,5 @@
   },
   "enabledPlugins": {
     "code-review@claude-plugins-official": true
-  },
-  "model": "opus"
+  }
 }
