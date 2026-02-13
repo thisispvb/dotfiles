@@ -8,16 +8,16 @@ set -eufo pipefail
 # Trackpad: enable tap to click for this user and for the login screen
 defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
 defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true
-defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -bool true
-defaults write NSGlobalDomain com.apple.mouse.tapBehavior -bool true
+defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 defaults write NSGlobalDomain com.apple.trackpad.forceClick -bool false
 defaults write NSGlobalDomain shouldShowRSVPDataDetectors -bool false
 
 defaults write -g ApplePressAndHoldEnabled -bool false
 
-defaults write NSGlobalDomain AppleFirstWeekday -dict-add gregorian 2
+defaults write NSGlobalDomain AppleFirstWeekday -dict gregorian -int 2
 defaults write NSGlobalDomain AppleICUDateFormatStrings -dict-add 1 "y-MM-dd"
-defaults write NSGlobalDomain AppleICUForce24HourTime -int 1
+defaults write NSGlobalDomain AppleICUForce24HourTime -bool true
 defaults write NSGlobalDomain AppleInterfaceStyle Dark
 defaults write NSGlobalDomain AppleLanguages -array en-US
 defaults write NSGlobalDomain AppleLocale en_US
@@ -62,6 +62,7 @@ defaults write com.apple.dock wvous-br-modifier -int 0
 defaults write com.apple.finder CreateDesktop -bool false
 defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 defaults write com.apple.finder ShowStatusBar -bool true
+defaults write com.apple.finder _FXEnableColumnAutoSizing -bool true
 
 defaults write com.apple.screensaver askForPassword -int 1
 defaults write com.apple.screensaver askForPasswordDelay -int 0
