@@ -1,4 +1,7 @@
 {
+  "env": {
+    "OMC_SKIP_HOOKS": "project-memory"
+  },
   "permissions": {
     "allow": [
       "Read",
