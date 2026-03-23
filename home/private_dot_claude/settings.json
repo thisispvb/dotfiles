@@ -54,5 +54,6 @@
   "notifications": {
     "enabled": false
   },
-  "model": "sonnet"
+  "model": "sonnet",
+  "showClearContextOnPlanAccept": true
 }
