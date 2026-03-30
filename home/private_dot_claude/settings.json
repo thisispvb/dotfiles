@@ -2,6 +2,10 @@
   "env": {
     "OMC_SKIP_HOOKS": "project-memory"
   },
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "permissions": {
     "allow": [
       "Read",
@@ -51,9 +55,10 @@
     "oh-my-claudecode@omc": true,
     "typescript-lsp@claude-plugins-official": true
   },
+  "effortLevel": "high",
+  "showClearContextOnPlanAccept": true,
   "notifications": {
     "enabled": false
   },
-  "model": "sonnet",
-  "showClearContextOnPlanAccept": true
+  "model": "sonnet"
 }
