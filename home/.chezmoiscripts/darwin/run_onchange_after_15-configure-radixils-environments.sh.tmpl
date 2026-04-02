@@ -27,8 +27,6 @@ echo "📦 Installing Radix ILS packages"
 
 
 {{ $casks := list
-  "claude-code"
-  "claude"
   "tailscale-app" -}}
 
 brew bundle --file=/dev/stdin <<EOF
@@ -44,6 +42,12 @@ brew "{{ . }}"
 cask "{{ . }}"
 {{ end -}}
 EOF
+
+# Install Claude Code via native installer (auto-updates)
+if ! command -v claude &> /dev/null; then
+  echo "📦 Installing Claude Code (native installer)"
+  curl -fsSL https://claude.ai/install.sh | bash
+fi
 {{ end -}}
 
 
