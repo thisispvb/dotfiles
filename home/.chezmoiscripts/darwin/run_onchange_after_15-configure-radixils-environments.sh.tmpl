@@ -4,6 +4,7 @@
 
 set -eufo pipefail
 
+{{ if .manageBrew -}}
 echo "📦 Installing Radix ILS packages"
 
 {{ $taps := list
@@ -26,20 +27,12 @@ echo "📦 Installing Radix ILS packages"
   "skaffold"
   "uv" -}}
 
-
-{{ $casks := list -}}
-
-brew bundle --file=/dev/stdin <<EOF
+brew bundle --no-upgrade --file=/dev/stdin <<EOF
 {{ range ($taps | sortAlpha | uniq) -}}
 tap "{{ . }}"
 {{ end -}}
-
 {{ range ($brews | sortAlpha | uniq) -}}
 brew "{{ . }}"
-{{ end -}}
-
-{{ range ($casks | sortAlpha | uniq) -}}
-cask "{{ . }}"
 {{ end -}}
 EOF
 
@@ -50,9 +43,9 @@ if ! command -v claude &> /dev/null; then
 fi
 {{ end -}}
 
-
 echo "📦 Configuring Radix ILS tooling"
 
 duckdb -c "install httpfs; install spatial; install h3 from community"
 
+{{ end -}}
 {{ end -}}
