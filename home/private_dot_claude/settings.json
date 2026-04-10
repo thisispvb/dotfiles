@@ -40,6 +40,19 @@
       "Bash(* --help)"
     ]
   },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/rtk-rewrite.sh"
+          }
+        ]
+      }
+    ]
+  },
   "statusLine": {
     "type": "command",
     "command": "node ~/.claude/hud/omc-hud.mjs"
@@ -55,7 +68,14 @@
     "oh-my-claudecode@omc": true,
     "typescript-lsp@claude-plugins-official": true
   },
-  "effortLevel": "high",
+  "extraKnownMarketplaces": {
+    "omc": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/Yeachan-Heo/oh-my-claudecode.git"
+      }
+    }
+  },
   "showClearContextOnPlanAccept": true,
   "notifications": {
     "enabled": false
