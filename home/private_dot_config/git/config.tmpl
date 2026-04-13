@@ -54,10 +54,10 @@
 
 [branch]
   # Auto-setup remote tracking for branches that exist on remote.
-  autosetupmerge = always
+  autoSetupMerge = always
 
   # Prefer rebase when merging branches
-  autosetuprebase = always
+  autoSetupRebase = always
 
   # Show most recently changed branches first.
   sort = -committerdate
@@ -132,6 +132,7 @@
 [push]
   # https://git-scm.com/docs/git-config#git-config-pushdefault
   default = current
+  autoSetupRemote = true
   # Make `git push` push relevant annotated tags when pushing branches out.
   followTags = true
 
