@@ -63,11 +63,28 @@ defaults write com.apple.finder CreateDesktop -bool false
 defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 defaults write com.apple.finder ShowStatusBar -bool true
 defaults write com.apple.finder _FXEnableColumnAutoSizing -bool true
+defaults write com.apple.WindowManager HideDesktop -int 1
+defaults write com.apple.WindowManager StandardHideDesktopIcons -int 1
+defaults write com.apple.WindowManager StandardHideWidgets -int 1
 
+# Require authentication immediately when the screen saver starts or the display turns off.
+# Keep the legacy defaults writes for compatibility, then enforce the current setting via sysadminctl.
 defaults write com.apple.screensaver askForPassword -int 1
 defaults write com.apple.screensaver askForPasswordDelay -int 0
+sysadminctl -screenLock immediate -password -
 
 defaults write com.apple.systempreferences NSQuitAlwaysKeepsWindows -bool false
+defaults -currentHost write com.apple.controlcenter Bluetooth -int 18
+defaults -currentHost write com.apple.controlcenter Sound -int 18
+
+defaults write com.apple.Safari AlwaysRestoreSessionAtLaunch -bool true
+defaults write com.apple.Safari AutoFillCreditCardData -bool false
+defaults write com.apple.Safari AutoFillPasswords -bool false
+defaults write com.apple.Safari IncludeDevelopMenu -bool true
+defaults write com.apple.Safari ShowOverlayStatusBar -bool true
+defaults write com.apple.Safari ShowStatusBar -bool true
+defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
+defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true
 
 defaults write com.googlecode.iterm2 PrefsCustomFolder -string "$HOME/.config/iterm2"
 defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true
@@ -101,6 +118,7 @@ sudo nvram StartupMute=%01
 # done
 
 killall Dock
+killall SystemUIServer
 
 launchctl unload -w /System/Library/LaunchAgents/com.apple.notificationcenterui.plist 2> /dev/null
 
