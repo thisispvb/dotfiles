@@ -8,15 +8,18 @@ set -eufo pipefail
 echo "📦 Installing Radix ILS packages"
 
 {{ $taps := list
+  "anomalyco/tap"
   "hashicorp/tap" -}}
 
 {{ $brews := list
+  "anomalyco/tap/opencode"
   "awscli"
   "colima"
   "docker-buildx"
   "duckdb"
-  "go"
   "go-task"
+  "go"
+  "golangci-lint"
   "hashicorp/tap/vault"
   "k9s"
   "libpq"
