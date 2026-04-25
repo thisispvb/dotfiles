@@ -5,8 +5,10 @@ set -eufo pipefail
 
 echo "📦 Installing general packages"
 
-{{ if not .manageBrew -}}
-export HOMEBREW_CASK_OPTS="--appdir=~/Applications"
+{{ if .manageBrew -}}
+export HOMEBREW_CASK_OPTS="--no-quarantine --appdir=/Applications --fontdir=/Library/Fonts"
+{{ else -}}
+export HOMEBREW_CASK_OPTS="--no-quarantine --appdir=$HOME/Applications --fontdir=$HOME/Library/Fonts"
 {{ end -}}
 
 {{ $taps := list
@@ -53,7 +55,11 @@ export HOMEBREW_CASK_OPTS="--appdir=~/Applications"
   "zopfli"
   "zsh" -}}
 
-{{ $casks := list
+{{ $fontCasks := list
+  "font-meslo-for-powerlevel10k"
+  "font-roboto" -}}
+
+{{ $casks := concat $fontCasks (list
   "1password-cli"
   "1password"
   "betterdisplay"
@@ -61,8 +67,6 @@ export HOMEBREW_CASK_OPTS="--appdir=~/Applications"
   "coconutbattery"
   "docker-desktop"
   "firefox"
-  "font-meslo-for-powerlevel10k"
-  "font-roboto"
   "google-chrome"
   "iterm2"
   "jordanbaird-ice"
@@ -82,7 +86,7 @@ export HOMEBREW_CASK_OPTS="--appdir=~/Applications"
   "visual-studio-code"
   "vlc"
   "whatsapp"
-  "zoom" -}}
+  "zoom") -}}
 
 {{ if .manageBrew -}}
 brew bundle --no-upgrade --file=/dev/stdin <<EOF
