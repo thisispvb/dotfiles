@@ -9,7 +9,8 @@ echo "📦 Installing Radix ILS packages"
 
 {{ $taps := list
   "anomalyco/tap"
-  "hashicorp/tap" -}}
+  "hashicorp/tap"
+  "janosmiko/tap" -}}
 
 {{ $brews := list
   "anomalyco/tap/opencode"
@@ -21,6 +22,7 @@ echo "📦 Installing Radix ILS packages"
   "go"
   "golangci-lint"
   "hashicorp/tap/vault"
+  "janosmiko/tap/lfk"
   "k9s"
   "libpq"
   "openssl"

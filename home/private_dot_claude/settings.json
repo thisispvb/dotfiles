@@ -76,7 +76,10 @@
       }
     }
   },
+  "effortLevel": "medium",
   "showClearContextOnPlanAccept": true,
+  "skipAutoPermissionPrompt": true,
+  "useAutoModeDuringPlan": false,
   "notifications": {
     "enabled": false
   },
