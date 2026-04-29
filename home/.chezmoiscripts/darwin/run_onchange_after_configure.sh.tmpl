@@ -71,7 +71,6 @@ defaults write com.apple.WindowManager StandardHideWidgets -int 1
 # Keep the legacy defaults writes for compatibility, then enforce the current setting via sysadminctl.
 defaults write com.apple.screensaver askForPassword -int 1
 defaults write com.apple.screensaver askForPasswordDelay -int 0
-sysadminctl -screenLock immediate -password -
 
 defaults write com.apple.systempreferences NSQuitAlwaysKeepsWindows -bool false
 defaults -currentHost write com.apple.controlcenter Bluetooth -int 18
