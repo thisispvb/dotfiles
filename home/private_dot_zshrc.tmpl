@@ -109,6 +109,7 @@ export LC_ALL=en_US.UTF-8
 export LDFLAGS="-L$(brew --prefix openssl)/lib" # psycopg2
 export CPPFLAGS="-I$(brew --prefix openssl)/include" # psycopg2
 export AWS_PROFILE="radix"
+export AWS_REGION="us-east-1"
 export GIT_PROJECTS_WORKDIR="$HOME/git/rdx"
 export GITHUB_PERSONAL_ACCESS_TOKEN="{{ (onepasswordDetailsFields "n4gyfahbctekzcdibjznxsublm" .vault).credential.value }}"
 export OPENAI_API_KEY="{{ (onepasswordDetailsFields "oczxldxg74agpwh7jdqc6cnmce" .vault).credential.value }}"
