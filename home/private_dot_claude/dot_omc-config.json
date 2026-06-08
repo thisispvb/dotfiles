@@ -7,6 +7,6 @@
     "useMcp": false
   },
   "setupCompleted": "2026-02-16T15:39:06+01:00",
-  "setupVersion": "v4.14.4",
+  "setupVersion": "v4.14.5",
   "nodeBinary": "~/.asdf/installs/nodejs/24.15.0/bin/node"
 }

@@ -1,5 +1,5 @@
 <!-- OMC:START -->
-<!-- OMC:VERSION:4.14.4 -->
+<!-- OMC:VERSION:4.14.5 -->
 
 # oh-my-claudecode - Intelligent Multi-Agent Orchestration
 
@@ -61,7 +61,6 @@ State: `.omc/state/`, `.omc/state/sessions/{sessionId}/`, `.omc/notepad.md`, `.o
 ## Setup
 
 Say "setup omc" or run `/oh-my-claudecode:omc-setup`.
-
 <!-- OMC:END -->
 
 <!-- User customizations -->
