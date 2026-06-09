@@ -61,6 +61,7 @@ State: `.omc/state/`, `.omc/state/sessions/{sessionId}/`, `.omc/notepad.md`, `.o
 ## Setup
 
 Say "setup omc" or run `/oh-my-claudecode:omc-setup`.
+
 <!-- OMC:END -->
 
 <!-- User customizations -->
