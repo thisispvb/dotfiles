@@ -64,6 +64,7 @@ Secrets are templated from 1Password using `onepasswordDetailsFields`. The vault
 
 ## Conventions
 
+- Use generic home folder paths (`~` or `$HOME`) in all config files — never hardcode `/Users/username` or `/home/username` so settings work across multiple user accounts
 - All scripts target bash with `set -eufo pipefail`
 - Package lists in scripts use chezmoi's `list` template function with `sortAlpha | uniq` for deterministic ordering
 - Templates end with a vim modeline comment (e.g., `{{/* vim: set filetype=zsh: */}}`)

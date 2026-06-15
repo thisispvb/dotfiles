@@ -7,6 +7,10 @@
     "pr": ""
   },
   "permissions": {
+    "deny": [
+      "Read(~/.config/rdx/secrets.zsh)",
+      "Read(~/.config/rdx/env.zsh)"
+    ],
     "allow": [
       "Read",
       "Glob",
