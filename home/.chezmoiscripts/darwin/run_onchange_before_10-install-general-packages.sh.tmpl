@@ -5,116 +5,32 @@ set -eufo pipefail
 
 echo "📦 Installing general packages"
 
-{{ if .manageBrew -}}
-export HOMEBREW_CASK_OPTS="--no-quarantine --appdir=/Applications --fontdir=/Library/Fonts"
-{{ else -}}
-export HOMEBREW_CASK_OPTS="--no-quarantine --appdir=$HOME/Applications --fontdir=$HOME/Library/Fonts"
-{{ end -}}
-
-{{ $taps := list
-  "bramstein/webfonttools" -}}
-
-{{ $brews := list
-  "ack"
-  "asdf"
-  "bat"
-  "beads"
-  "coreutils"
-  "curl"
-  "direnv"
-  "eza"
-  "ffmpeg"
-  "findutils"
-  "gh"
-  "git-lfs"
-  "git"
-  "gnu-sed"
-  "gnu-units"
-  "gnupg"
-  "grep"
-  "go-task"
-  "imagemagick"
-  "jq"
-  "lazygit"
-  "libmagic"
-  "moreutils"
-  "openjdk"
-  "pv"
-  "rename"
-  "screen"
-  "speedtest-cli"
-  "ssh-copy-id"
-  "testssl"
-  "tlrc"
-  "tmux"
-  "tmuxinator"
-  "tree"
-  "vbindiff"
-  "vim"
-  "wget"
-  "zopfli"
-  "zsh" -}}
-
-{{ $fontCasks := list
-  "font-meslo-for-powerlevel10k"
-  "font-roboto" -}}
-
-{{ $casks := concat $fontCasks (list
-  "1password-cli"
-  "1password"
-  "betterdisplay"
-  "codex"
-  "coconutbattery"
-  "docker-desktop"
-  "firefox"
-  "google-chrome"
-  "iterm2"
-  "jordanbaird-ice"
-  "logitune"
-  "loom"
-  "microsoft-teams"
-  "notion"
-  "obsidian"
-  "protonvpn"
-  "raycast"
-  "signal"
-  "sonos"
-  "soundsource"
-  "sourcetree"
-  "spotify"
-  "tailscale-app"
-  "visual-studio-code"
-  "vlc"
-  "whatsapp"
-  "zoom") -}}
+{{ template "brew-cask-opts" . }}
 
 {{ if .manageBrew -}}
-{{ range ($taps | sortAlpha | uniq) -}}
+{{ range (.packages.darwin.taps | sortAlpha | uniq) -}}
 brew trust --tap "{{ . }}"
 {{ end -}}
 brew bundle --no-upgrade --file=/dev/stdin <<EOF
-{{ range ($taps | sortAlpha | uniq) -}}
+{{ range (.packages.darwin.taps | sortAlpha | uniq) -}}
 tap "{{ . }}"
 {{ end -}}
-{{ range ($brews | sortAlpha | uniq) -}}
+{{ range (.packages.darwin.brews | sortAlpha | uniq) -}}
 brew "{{ . }}"
 {{ end -}}
 EOF
 {{ end -}}
 
+{{ $casks := concat .packages.darwin.fontCasks .packages.darwin.casks -}}
 brew bundle --no-upgrade --file=/dev/stdin <<EOF
 {{ range ($casks | sortAlpha | uniq) -}}
 cask "{{ . }}"
 {{ end -}}
 
 {{ if .manageBrew -}}
-mas "1password-for-safari", id: 1569813296
-mas "hand-mirror", id: 1502839586
-mas "ia-writer", id: 775737590
-mas "irvue", id: 1039633667
-mas "magnet", id: 441258766
-mas "slack-for-desktop", id: 803453959
-mas "wireguard", id: 1451685025
+{{ range $name, $id := .packages.darwin.mas -}}
+mas "{{ $name }}", id: {{ $id }}
+{{ end -}}
 {{ end -}}
 EOF
 {{ end -}}

@@ -1,6 +1,8 @@
 {{- if (eq .chezmoi.os "darwin") -}}
 #!/usr/bin/env bash
 
+set -eufo pipefail
+
 {{ $folders := list
   "~/.asdf"
   "~/.asdf/completions"

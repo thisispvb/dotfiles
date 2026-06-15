@@ -7,21 +7,11 @@ echo "📦 Setting up asdf (+ installing plugins & tools)"
 
 INSTALLED_PLUGINS=$(asdf plugin list)
 
-if ! grep -q "nodejs" <<< "$INSTALLED_PLUGINS"; then
-  asdf plugin add nodejs
+{{ range (list "nodejs" "pnpm" "python" "ruby") -}}
+if ! grep -q "{{ . }}" <<< "$INSTALLED_PLUGINS"; then
+  asdf plugin add {{ . }}
 fi
-
-if ! grep -q "pnpm" <<< "$INSTALLED_PLUGINS"; then
-  asdf plugin add pnpm
-fi
-
-if ! grep -q "python" <<< "$INSTALLED_PLUGINS"; then
-  asdf plugin add python
-fi
-
-if ! grep -q "ruby" <<< "$INSTALLED_PLUGINS"; then
-  asdf plugin add ruby
-fi
+{{ end -}}
 
 echo "Updating asdf plugins..."
 asdf plugin update --all
@@ -30,6 +20,5 @@ echo "Installing asdf versions..."
 asdf install
 
 echo "Setting up asdf autocompletions..."
-# asdf completions
 asdf completion zsh > "${ASDF_DATA_DIR:-$HOME/.asdf}/completions/_asdf"
 {{ end -}}

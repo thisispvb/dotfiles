@@ -1,0 +1,108 @@
+packages:
+  darwin:
+    taps:
+      - bramstein/webfonttools
+    brews:
+      - ack
+      - asdf
+      - bat
+      - beads
+      - coreutils
+      - curl
+      - direnv
+      - eza
+      - ffmpeg
+      - findutils
+      - gh
+      - git
+      - git-lfs
+      - gnu-sed
+      - gnu-units
+      - gnupg
+      - go-task
+      - grep
+      - imagemagick
+      - jq
+      - lazygit
+      - libmagic
+      - moreutils
+      - openjdk
+      - pv
+      - rename
+      - screen
+      - speedtest-cli
+      - ssh-copy-id
+      - testssl
+      - tlrc
+      - tmux
+      - tmuxinator
+      - tree
+      - vbindiff
+      - vim
+      - wget
+      - zopfli
+      - zsh
+    fontCasks:
+      - font-meslo-for-powerlevel10k
+      - font-roboto
+    casks:
+      - 1password
+      - 1password-cli
+      - betterdisplay
+      - coconutbattery
+      - codex
+      - docker-desktop
+      - firefox
+      - google-chrome
+      - iterm2
+      - jordanbaird-ice
+      - logitune
+      - loom
+      - microsoft-teams
+      - notion
+      - obsidian
+      - protonvpn
+      - raycast
+      - signal
+      - sonos
+      - soundsource
+      - sourcetree
+      - spotify
+      - tailscale-app
+      - visual-studio-code
+      - vlc
+      - whatsapp
+      - zoom
+    mas:
+      1password-for-safari: 1569813296
+      hand-mirror: 1502839586
+      ia-writer: 775737590
+      irvue: 1039633667
+      magnet: 441258766
+      slack-for-desktop: 803453959
+      wireguard: 1451685025
+    work:
+      taps:
+        - anomalyco/tap
+        - hashicorp/tap
+        - janosmiko/tap
+      brews:
+        - anomalyco/tap/opencode
+        - awscli
+        - colima
+        - docker-buildx
+        - duckdb
+        - go
+        - go-task
+        - golangci-lint
+        - hashicorp/tap/terraform
+        - hashicorp/tap/vault
+        - janosmiko/tap/lfk
+        - k9s
+        - libpq
+        - openssl
+        - postgresql
+        - pspg
+        - rtk
+        - skaffold
+        - uv

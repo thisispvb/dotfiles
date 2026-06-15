@@ -1,0 +1,5 @@
+{{- if .manageBrew -}}
+export HOMEBREW_CASK_OPTS="--no-quarantine --appdir=/Applications --fontdir=/Library/Fonts"
+{{- else -}}
+export HOMEBREW_CASK_OPTS="--no-quarantine --appdir=$HOME/Applications --fontdir=$HOME/Library/Fonts"
+{{- end -}}

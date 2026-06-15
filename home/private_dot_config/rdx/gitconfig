@@ -1,0 +1,5 @@
+[user]
+  email = pvb@radixils.com
+
+[url "git@github.com:RadixILS-Dev/"]
+  insteadOf = https://github.com/RadixILS-Dev/
