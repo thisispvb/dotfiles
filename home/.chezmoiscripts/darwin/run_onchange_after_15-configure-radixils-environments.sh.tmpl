@@ -33,6 +33,9 @@ echo "📦 Installing Radix ILS packages"
   "skaffold"
   "uv" -}}
 
+{{ range ($taps | sortAlpha | uniq) -}}
+brew trust --tap "{{ . }}"
+{{ end -}}
 brew bundle --no-upgrade --file=/dev/stdin <<EOF
 {{ range ($taps | sortAlpha | uniq) -}}
 tap "{{ . }}"

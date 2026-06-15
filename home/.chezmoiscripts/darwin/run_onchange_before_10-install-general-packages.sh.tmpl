@@ -89,6 +89,9 @@ export HOMEBREW_CASK_OPTS="--no-quarantine --appdir=$HOME/Applications --fontdir
   "zoom") -}}
 
 {{ if .manageBrew -}}
+{{ range ($taps | sortAlpha | uniq) -}}
+brew trust --tap "{{ . }}"
+{{ end -}}
 brew bundle --no-upgrade --file=/dev/stdin <<EOF
 {{ range ($taps | sortAlpha | uniq) -}}
 tap "{{ . }}"
