@@ -84,6 +84,7 @@ packages:
     work:
       taps:
         - anomalyco/tap
+        - fluxcd/tap
         - hashicorp/tap
         - janosmiko/tap
       brews:
@@ -92,6 +93,7 @@ packages:
         - colima
         - docker-buildx
         - duckdb
+        - fluxcd/tap/flux
         - go
         - go-task
         - golangci-lint
