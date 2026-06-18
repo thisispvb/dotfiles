@@ -107,4 +107,5 @@ packages:
         - pspg
         - rtk
         - skaffold
+        - stern
         - uv
