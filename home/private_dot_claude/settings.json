@@ -6,11 +6,8 @@
     "commit": "",
     "pr": ""
   },
+  "includeCoAuthoredBy": false,
   "permissions": {
-    "deny": [
-      "Read(~/.config/rdx/secrets.zsh)",
-      "Read(~/.config/rdx/env.zsh)"
-    ],
     "allow": [
       "Read",
       "Glob",
@@ -42,6 +39,10 @@
       "Bash(git tag *)",
       "Bash(* --version)",
       "Bash(* --help)"
+    ],
+    "deny": [
+      "Read(~/.config/rdx/secrets.zsh)",
+      "Read(~/.config/rdx/env.zsh)"
     ]
   },
   "model": "opusplan",
@@ -71,8 +72,10 @@
   },
   "effortLevel": "medium",
   "showClearContextOnPlanAccept": true,
+  "tui": "fullscreen",
   "skipAutoPermissionPrompt": true,
   "useAutoModeDuringPlan": false,
+  "voiceEnabled": true,
   "notifications": {
     "enabled": false
   }
