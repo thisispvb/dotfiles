@@ -30,6 +30,7 @@ packages:
       - pv
       - rename
       - screen
+      - sops
       - speedtest-cli
       - ssh-copy-id
       - testssl
