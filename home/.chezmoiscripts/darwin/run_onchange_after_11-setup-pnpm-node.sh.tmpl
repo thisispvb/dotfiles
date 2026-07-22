@@ -1,0 +1,46 @@
+{{- if (eq .chezmoi.os "darwin") -}}
+#!/usr/bin/env bash
+
+set -eufo pipefail
+
+# Node is managed by pnpm on this machine (asdf handles python/ruby only).
+# pnpm itself is installed from its self-contained @pnpm/exe binary — the one
+# install method that needs no pre-existing Node (Homebrew's pnpm is a
+# `#!/usr/bin/env node` script, a bootstrap paradox once asdf's Node is gone).
+NODE_VERSION="{{ .versions.node }}"
+PNPM_VERSION="{{ .versions.pnpm }}"
+
+# Match dot_zprofile's layout: $PNPM_HOME holds the pnpm CLI, $PNPM_HOME/bin
+# holds global binaries + the managed Node. Both must be on PATH so pnpm's
+# `-g` global-bin-dir check passes in chezmoi's non-login apply shell.
+export PNPM_HOME="$HOME/.local/share/pnpm"
+export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"
+
+mkdir -p "$PNPM_HOME"
+
+echo "📦 Setting up pnpm ($PNPM_VERSION) + managed Node ($NODE_VERSION)"
+
+# Install the self-contained pnpm if it's missing or the wrong version.
+if [ ! -x "$PNPM_HOME/pnpm" ] || [ "$("$PNPM_HOME/pnpm" --version 2>/dev/null || true)" != "$PNPM_VERSION" ]; then
+  echo "Installing self-contained pnpm $PNPM_VERSION..."
+  tmp="$(mktemp -d)"
+  trap 'rm -rf "$tmp"' EXIT
+  curl -fsSL \
+    "https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/pnpm-darwin-arm64.tar.gz" \
+    -o "$tmp/pnpm.tar.gz"
+  # Tarball contains a top-level `pnpm` (Mach-O arm64) plus the `dist/` dir it
+  # requires; both land in $PNPM_HOME.
+  tar -xzf "$tmp/pnpm.tar.gz" -C "$PNPM_HOME"
+  chmod +x "$PNPM_HOME/pnpm"
+fi
+
+# Install/set the global default Node. Per-project versions are auto-provisioned
+# from each repo's package.json#devEngines.runtime on `pnpm install`.
+if [ ! -x "$PNPM_HOME/bin/node" ] || [ "$("$PNPM_HOME/bin/node" -v 2>/dev/null || true)" != "v$NODE_VERSION" ]; then
+  echo "Installing pnpm-managed Node $NODE_VERSION..."
+  if "$PNPM_HOME/pnpm" runtime set node "$NODE_VERSION" -g; then :
+  elif "$PNPM_HOME/pnpm" env use --global "$NODE_VERSION"; then :
+  fi
+fi
+{{ end -}}
+{{/* vim: set filetype=sh: */}}

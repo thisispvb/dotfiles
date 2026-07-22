@@ -7,7 +7,18 @@ echo "📦 Setting up asdf (+ installing plugins & tools)"
 
 INSTALLED_PLUGINS=$(asdf plugin list)
 
-{{ range (list "nodejs" "pnpm" "python" "ruby") -}}
+# Node/pnpm are no longer managed by asdf (pnpm owns Node; pnpm itself is the
+# self-contained binary in $PNPM_HOME). Remove the stale asdf plugins so their
+# shims (~/.asdf/shims/{node,pnpm}) vanish and PATH falls through to
+# $PNPM_HOME/bin/node and $PNPM_HOME/pnpm.
+for plugin in nodejs pnpm; do
+  if asdf plugin list | grep -qx "$plugin"; then
+    echo "Removing asdf plugin: $plugin (now managed by pnpm/Homebrew)"
+    asdf plugin remove "$plugin"
+  fi
+done
+
+{{ range (list "python" "ruby") -}}
 if ! grep -q "{{ . }}" <<< "$INSTALLED_PLUGINS"; then
   asdf plugin add {{ . }}
 fi
