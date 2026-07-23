@@ -41,6 +41,7 @@ packages:
       - vbindiff
       - vim
       - wget
+      - yq
       - zopfli
       - zsh
     fontCasks:
