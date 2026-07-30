@@ -4,6 +4,7 @@ set -e # -e: exit on error
 
 AGE_KEY_FILE="$HOME/.config/chezmoi/key.txt"
 AGE_ITEM_UUID="jb7rxvjrxlp7kkhiieipzeruvy"
+AGE_KEY_ATTACHMENT_NAME="key.txt"
 MAX_KEY_ATTEMPTS=3
 
 # Extract the secret key line from any source: an op field value, a full
@@ -15,6 +16,13 @@ extract_age_key() {
 # Print the age key to stdout, fetched from 1Password. Fails if not signed in
 # or the item cannot be read.
 fetch_age_key_from_1password() {
+  file_ref=""
+  item_json=""
+  key=""
+  raw=""
+  vault_block=""
+  vault_uuid=""
+
   if ! op whoami >/dev/null 2>&1; then
     echo "Signing in to 1Password..." >&2
     if ! eval "$(op signin)"; then
@@ -26,10 +34,52 @@ fetch_age_key_from_1password() {
       return 1
     fi
   fi
-  # The item may be a secure note or a document; try both. The item UUID is
-  # account-unique, so no vault needs to be specified.
-  op item get "$AGE_ITEM_UUID" --fields notesPlain --reveal 2>/dev/null ||
-    op document get "$AGE_ITEM_UUID" 2>/dev/null
+
+  # The item has changed shape a couple of times: support a concealed field, a
+  # secure note, a file attachment, or the old standalone document form.
+  if raw="$(op item get "$AGE_ITEM_UUID" --fields label=credential --reveal 2>/dev/null)" &&
+    key="$(printf '%s\n' "$raw" | extract_age_key)"; then
+    printf '%s\n' "$key"
+    return 0
+  fi
+
+  if raw="$(op item get "$AGE_ITEM_UUID" --fields notesPlain --reveal 2>/dev/null)" &&
+    key="$(printf '%s\n' "$raw" | extract_age_key)"; then
+    printf '%s\n' "$key"
+    return 0
+  fi
+
+  if item_json="$(op item get "$AGE_ITEM_UUID" --format json 2>/dev/null)"; then
+    file_ref="$(printf '%s\n' "$item_json" |
+      sed -n 's/.*"reference"[[:space:]]*:[[:space:]]*"\([^"]*\/key[.]txt\)".*/\1/p' |
+      head -n 1)"
+    if [ -n "$file_ref" ] &&
+      raw="$(op read "$file_ref" 2>/dev/null)" &&
+      key="$(printf '%s\n' "$raw" | extract_age_key)"; then
+      printf '%s\n' "$key"
+      return 0
+    fi
+
+    vault_block="${item_json#*\"vault\"}"
+    vault_block="${vault_block%%\}*}"
+    vault_uuid="$(printf '%s\n' "$vault_block" |
+      sed -n 's/.*"id"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' |
+      head -n 1)"
+    if [ -n "$vault_uuid" ] &&
+      raw="$(op read "op://$vault_uuid/$AGE_ITEM_UUID/$AGE_KEY_ATTACHMENT_NAME" 2>/dev/null)" &&
+      key="$(printf '%s\n' "$raw" | extract_age_key)"; then
+      printf '%s\n' "$key"
+      return 0
+    fi
+  fi
+
+  if raw="$(op document get "$AGE_ITEM_UUID" 2>/dev/null)" &&
+    key="$(printf '%s\n' "$raw" | extract_age_key)"; then
+    printf '%s\n' "$key"
+    return 0
+  fi
+
+  return 1
 }
 
 # Write a key to $AGE_KEY_FILE from 1Password or a manual paste.
