@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-A personal dotfiles repository managed with [chezmoi](https://www.chezmoi.io/) (v2.15.1+). It provisions macOS (primary) and Linux machines with shell config, packages, git settings, SSH keys, and application preferences. Secrets come from 1Password via the `op` CLI.
+A personal dotfiles repository managed with [chezmoi](https://www.chezmoi.io/) (v2.15.1+). It provisions macOS (primary) and Linux machines with shell config, packages, git settings, SSH keys, and application preferences. Secrets are age-encrypted in-repo via chezmoi's built-in encryption.
 
 ## Key Commands
 
@@ -60,7 +60,11 @@ Scripts in `home/.chezmoiscripts/darwin/` run on `chezmoi apply` when their cont
 
 ### Secrets
 
-Secrets are templated from 1Password using `onepasswordDetailsFields`. The vault ID is stored in `.chezmoi.toml.tmpl` as `vault`. Files containing secrets include SSH keys (`private_dot_ssh/`), AWS config, git credentials, and zshrc API keys. The 1Password CLI (`op`) must be authenticated before `chezmoi apply`.
+Secrets are age-encrypted files committed in the repo, decrypted transparently by chezmoi during `apply`/`diff`/`edit` (`encryption = "age"` in `.chezmoi.toml.tmpl`). Encrypted source files use the `encrypted_` name prefix (e.g. `private_dot_ssh/encrypted_private_id_ed25519.tmpl` — chezmoi decrypts first, then templates). No external tool is needed at apply time.
+
+The single shared age identity lives at `~/.config/chezmoi/key.txt` (chmod 600, not managed by chezmoi). The private key is backed up in 1Password; the repo-root `install.sh` bootstrap restores it automatically (fetching from 1Password via `op`, or prompting for a paste) as part of the one-command setup — that is the only remaining 1Password dependency.
+
+To change a secret, use `chezmoi edit <target>` — it decrypts to a temp file and re-encrypts on save. To add a new secret file, use `chezmoi add --encrypt <file>`. The public recipient key is committed in `.chezmoi.toml.tmpl` and is safe to share.
 
 ## Conventions
 

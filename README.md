@@ -2,20 +2,26 @@
 
 Philip's dotfiles, managed with [`chezmoi`](https://github.com/twpayne/chezmoi).
 
-Install and apply them with:
+## New machine: one command
+
+    sh -c "$(curl -fsLS https://raw.githubusercontent.com/thisispvb/dotfiles/main/install.sh)"
+
+This bootstraps everything in one go: it provisions the age key that encrypts
+the repo's secrets (fetched from 1Password via `op` if available, otherwise it
+prompts you to paste the key), installs `chezmoi` if needed, clones this repo,
+and applies the dotfiles.
+
+If `chezmoi` and the age key (`~/.config/chezmoi/key.txt`) are already in
+place, this works too:
 
     chezmoi init --apply thisispvb
 
-    # alternatively if `chezmoi` isn't installed yet:
-    sh -c "$(curl -fsLS chezmoi.io/get)" -- init --apply thisispvb
+## How secrets work
 
-Personal/Work secrets are stored in [1Password](https://1password.com/), and you'll need
-the [1Password CLI](https://developer.1password.com/docs/cli/get-started) installed.
-Login to 1Password for the first time with:
+Secrets are age-encrypted directly in this repo and decrypted transparently by
+chezmoi during `apply`/`diff`/`edit`. The only thing a new machine needs is
+the age identity at `~/.config/chezmoi/key.txt`, which the bootstrap above
+restores from 1Password. There is no per-apply `op` dependency.
 
-    op account add --address my.1password.eu --email p@bargen.co
-    eval $(op signin)
-
-Then, to login afterwards, run:
-
-    eval $(op signin)
+To change a secret, run `chezmoi edit <file>` — it decrypts to a temp file and
+re-encrypts on save. To add a new secret file, use `chezmoi add --encrypt <file>`.
