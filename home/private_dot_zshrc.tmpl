@@ -104,6 +104,23 @@ export LC_ALL=en_US.UTF-8
 {{- if .radixils }}
 [[ -f ~/.config/rdx/env.zsh ]] && source ~/.config/rdx/env.zsh
 [[ -f ~/.config/rdx/secrets.zsh ]] && source ~/.config/rdx/secrets.zsh
+
+# Run Claude Code against Fireworks.ai Fire Pass routers for this invocation only.
+claude-fw() {
+  if [[ -z "$FIREWORKS_API_KEY" ]]; then
+    print -u2 "claude-fw: FIREWORKS_API_KEY is not set"
+    return 1
+  fi
+  ANTHROPIC_BASE_URL="https://api.fireworks.ai/inference" \
+  ANTHROPIC_CUSTOM_HEADERS="X-Fireworks-Api-Key: $FIREWORKS_API_KEY" \
+  ANTHROPIC_MODEL="accounts/fireworks/routers/kimi-k3-fast" \
+  ANTHROPIC_DEFAULT_OPUS_MODEL="accounts/fireworks/routers/kimi-k3-fast" \
+  ANTHROPIC_DEFAULT_SONNET_MODEL="accounts/fireworks/routers/glm-5p2-fast" \
+  ANTHROPIC_DEFAULT_HAIKU_MODEL="accounts/fireworks/routers/kimi-k2p6-turbo" \
+  ANTHROPIC_DEFAULT_FABLE_MODEL="accounts/fireworks/routers/glm-5p2-fast" \
+  CLAUDE_CODE_SUBAGENT_MODEL="accounts/fireworks/routers/kimi-k2p6-turbo" \
+    command claude "$@"
+}
 {{- end }}
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
