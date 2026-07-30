@@ -1,5 +1,0 @@
-{{- if .personal -}}
-{{-   onepasswordDocument ".ssh/id_ed25519" .vault -}}
-{{- else if .radixils -}}
-{{-   onepasswordDocument "radixils/.ssh/id_ed25519" .vault -}}
-{{- end -}}

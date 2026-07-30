@@ -9,6 +9,7 @@
 {{-   $osID = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
 {{- end -}}
 
+encryption = "age"
 [data]
   machineRole = {{ $machineRole | quote }}
   manageBrew = {{ $manageBrew }}
@@ -16,6 +17,8 @@
   personal = {{ $personal }}
   hostname = {{ .chezmoi.hostname | quote }}
   osid = {{ $osID | quote }}
-  vault = "dy6pemkojjapnjhhspqmii4ulq"
+[age]
+  identity = "~/.config/chezmoi/key.txt"
+  recipient = "age13zvjqn9umcxl4v35lav9s6tmzg05s537n649z72fj9kqg0kevv9sf8w9pa"
 [diff]
   exclude = ["externals"]
