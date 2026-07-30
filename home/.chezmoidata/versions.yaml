@@ -1,5 +1,8 @@
 versions:
   node: "26.5.0"
+  # npm bundled with the pinned Node — see https://nodejs.org/dist/index.json.
+  # Bump together with `node`.
+  npm: "11.17.0"
   pnpm: "11.15.1"
   powerlevel10k: "1.16.1"
   age: "1.2.1"

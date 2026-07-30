@@ -8,6 +8,7 @@ set -eufo pipefail
 # install method that needs no pre-existing Node (Homebrew's pnpm is a
 # `#!/usr/bin/env node` script, a bootstrap paradox once asdf's Node is gone).
 NODE_VERSION="{{ .versions.node }}"
+NPM_VERSION="{{ .versions.npm }}"
 PNPM_VERSION="{{ .versions.pnpm }}"
 
 # Match dot_zprofile's layout: $PNPM_HOME holds the pnpm CLI, $PNPM_HOME/bin
@@ -18,7 +19,7 @@ export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"
 
 mkdir -p "$PNPM_HOME"
 
-echo "📦 Setting up pnpm ($PNPM_VERSION) + managed Node ($NODE_VERSION)"
+echo "📦 Setting up pnpm ($PNPM_VERSION) + managed Node ($NODE_VERSION) + npm ($NPM_VERSION)"
 
 # Install the self-contained pnpm if it's missing or the wrong version.
 if [ ! -x "$PNPM_HOME/pnpm" ] || [ "$("$PNPM_HOME/pnpm" --version 2>/dev/null || true)" != "$PNPM_VERSION" ]; then
@@ -40,7 +41,18 @@ if [ ! -x "$PNPM_HOME/bin/node" ] || [ "$("$PNPM_HOME/bin/node" -v 2>/dev/null |
   echo "Installing pnpm-managed Node $NODE_VERSION..."
   if "$PNPM_HOME/pnpm" runtime set node "$NODE_VERSION" -g; then :
   elif "$PNPM_HOME/pnpm" env use --global "$NODE_VERSION"; then :
+  else
+    echo "Failed to install pnpm-managed Node $NODE_VERSION" >&2
+    exit 1
   fi
+fi
+
+# Node from pnpm's runtime is bin/node only — npm/npx are stripped. Install the
+# npm that ships with this Node version as a pnpm global so third-party scripts
+# expecting the stock toolchain work. Shims land in $PNPM_HOME/bin.
+if [ ! -x "$PNPM_HOME/bin/npm" ] || [ "$("$PNPM_HOME/bin/npm" --version 2>/dev/null || true)" != "$NPM_VERSION" ]; then
+  echo "Installing npm $NPM_VERSION..."
+  "$PNPM_HOME/pnpm" add -g "npm@$NPM_VERSION"
 fi
 {{ end -}}
 {{/* vim: set filetype=sh: */}}

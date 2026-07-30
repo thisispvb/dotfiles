@@ -1,0 +1,5 @@
+# Global installs go to ~/.local (bin already on PATH via .zshrc); npm's default
+# prefix is derived from the node binary, which lives in a pnpm content-addressed
+# store path that changes on every Node bump.
+prefix=${HOME}/.local
+fund=false
