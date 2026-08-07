@@ -79,14 +79,23 @@ defaults write com.apple.systempreferences NSQuitAlwaysKeepsWindows -bool false
 defaults -currentHost write com.apple.controlcenter Bluetooth -int 18
 defaults -currentHost write com.apple.controlcenter Sound -int 18
 
-defaults write com.apple.Safari AlwaysRestoreSessionAtLaunch -bool true
-defaults write com.apple.Safari AutoFillCreditCardData -bool false
-defaults write com.apple.Safari AutoFillPasswords -bool false
-defaults write com.apple.Safari IncludeDevelopMenu -bool true
-defaults write com.apple.Safari ShowOverlayStatusBar -bool true
-defaults write com.apple.Safari ShowStatusBar -bool true
-defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
-defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true
+# Safari's preferences live in a privacy-protected app container on current
+# macOS releases. A fresh machine may not have created that container yet, and
+# Terminal may not have permission to write it. These preferences should not
+# prevent the rest of chezmoi from applying.
+safari_defaults_failed=0
+defaults write com.apple.Safari AlwaysRestoreSessionAtLaunch -bool true 2>/dev/null || safari_defaults_failed=1
+defaults write com.apple.Safari AutoFillCreditCardData -bool false 2>/dev/null || safari_defaults_failed=1
+defaults write com.apple.Safari AutoFillPasswords -bool false 2>/dev/null || safari_defaults_failed=1
+defaults write com.apple.Safari IncludeDevelopMenu -bool true 2>/dev/null || safari_defaults_failed=1
+defaults write com.apple.Safari ShowOverlayStatusBar -bool true 2>/dev/null || safari_defaults_failed=1
+defaults write com.apple.Safari ShowStatusBar -bool true 2>/dev/null || safari_defaults_failed=1
+defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true 2>/dev/null || safari_defaults_failed=1
+defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true 2>/dev/null || safari_defaults_failed=1
+if [ "$safari_defaults_failed" -ne 0 ]; then
+  echo "Warning: Safari preferences could not be written; continuing setup." >&2
+  echo "Open Safari once and grant your terminal Full Disk Access if you want to apply them manually." >&2
+fi
 
 defaults write com.googlecode.iterm2 PrefsCustomFolder -string "$HOME/.config/iterm2"
 defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true
@@ -119,9 +128,11 @@ sudo nvram StartupMute=%01
 #   dockutil --find "$dockItemLabel" >/dev/null && dockutil --no-restart --remove "$dockItemLabel"
 # done
 
-killall Dock
-killall SystemUIServer
+killall Dock 2>/dev/null || true
+killall SystemUIServer 2>/dev/null || true
 
-launchctl unload -w /System/Library/LaunchAgents/com.apple.notificationcenterui.plist 2> /dev/null
+# This unload is blocked on recent macOS releases. Keep it as a best-effort
+# preference for older releases without failing the entire chezmoi run.
+launchctl unload -w /System/Library/LaunchAgents/com.apple.notificationcenterui.plist 2>/dev/null || true
 
 {{ end -}}

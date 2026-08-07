@@ -3,6 +3,7 @@
 set -e # -e: exit on error
 
 AGE_KEY_FILE="$HOME/.config/chezmoi/key.txt"
+AGE_ACCOUNT="my.1password.eu"
 AGE_ITEM_UUID="jb7rxvjrxlp7kkhiieipzeruvy"
 AGE_KEY_ATTACHMENT_NAME="key.txt"
 MAX_KEY_ATTEMPTS=3
@@ -23,12 +24,12 @@ fetch_age_key_from_1password() {
   vault_block=""
   vault_uuid=""
 
-  if ! op whoami >/dev/null 2>&1; then
-    echo "Signing in to 1Password..." >&2
-    if ! eval "$(op signin)"; then
+  if ! op whoami --account "$AGE_ACCOUNT" >/dev/null 2>&1; then
+    echo "Signing in to 1Password ($AGE_ACCOUNT)..." >&2
+    if ! eval "$(op signin --account "$AGE_ACCOUNT")"; then
       echo "Could not sign in to 1Password." >&2
       echo "If no account is configured on this machine yet, run:" >&2
-      echo "  op account add --address my.1password.eu --email p@bargen.co" >&2
+      echo "  op account add --address $AGE_ACCOUNT --email p@bargen.co" >&2
       echo "or enable CLI integration in the 1Password desktop app" >&2
       echo "(Settings > Developer > Integrate with 1Password CLI)." >&2
       return 1
@@ -37,24 +38,24 @@ fetch_age_key_from_1password() {
 
   # The item has changed shape a couple of times: support a concealed field, a
   # secure note, a file attachment, or the old standalone document form.
-  if raw="$(op item get "$AGE_ITEM_UUID" --fields label=credential --reveal 2>/dev/null)" &&
+  if raw="$(op item get "$AGE_ITEM_UUID" --account "$AGE_ACCOUNT" --fields label=credential --reveal 2>/dev/null)" &&
     key="$(printf '%s\n' "$raw" | extract_age_key)"; then
     printf '%s\n' "$key"
     return 0
   fi
 
-  if raw="$(op item get "$AGE_ITEM_UUID" --fields notesPlain --reveal 2>/dev/null)" &&
+  if raw="$(op item get "$AGE_ITEM_UUID" --account "$AGE_ACCOUNT" --fields notesPlain --reveal 2>/dev/null)" &&
     key="$(printf '%s\n' "$raw" | extract_age_key)"; then
     printf '%s\n' "$key"
     return 0
   fi
 
-  if item_json="$(op item get "$AGE_ITEM_UUID" --format json 2>/dev/null)"; then
+  if item_json="$(op item get "$AGE_ITEM_UUID" --account "$AGE_ACCOUNT" --format json 2>/dev/null)"; then
     file_ref="$(printf '%s\n' "$item_json" |
       sed -n 's/.*"reference"[[:space:]]*:[[:space:]]*"\([^"]*\/key[.]txt\)".*/\1/p' |
       head -n 1)"
     if [ -n "$file_ref" ] &&
-      raw="$(op read "$file_ref" 2>/dev/null)" &&
+      raw="$(op read "$file_ref" --account "$AGE_ACCOUNT" 2>/dev/null)" &&
       key="$(printf '%s\n' "$raw" | extract_age_key)"; then
       printf '%s\n' "$key"
       return 0
@@ -66,19 +67,22 @@ fetch_age_key_from_1password() {
       sed -n 's/.*"id"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' |
       head -n 1)"
     if [ -n "$vault_uuid" ] &&
-      raw="$(op read "op://$vault_uuid/$AGE_ITEM_UUID/$AGE_KEY_ATTACHMENT_NAME" 2>/dev/null)" &&
+      raw="$(op read "op://$vault_uuid/$AGE_ITEM_UUID/$AGE_KEY_ATTACHMENT_NAME" --account "$AGE_ACCOUNT" 2>/dev/null)" &&
       key="$(printf '%s\n' "$raw" | extract_age_key)"; then
       printf '%s\n' "$key"
       return 0
     fi
   fi
 
-  if raw="$(op document get "$AGE_ITEM_UUID" 2>/dev/null)" &&
+  if raw="$(op document get "$AGE_ITEM_UUID" --account "$AGE_ACCOUNT" 2>/dev/null)" &&
     key="$(printf '%s\n' "$raw" | extract_age_key)"; then
     printf '%s\n' "$key"
     return 0
   fi
 
+  echo "Could not read $AGE_KEY_ATTACHMENT_NAME from 1Password item $AGE_ITEM_UUID." >&2
+  echo "Check that the item is available in the $AGE_ACCOUNT account and that" >&2
+  echo "its credential, notes, document, or $AGE_KEY_ATTACHMENT_NAME attachment contains the age key." >&2
   return 1
 }
 
