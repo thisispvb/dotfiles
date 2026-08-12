@@ -11,6 +11,10 @@ defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true
 defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 defaults write NSGlobalDomain com.apple.trackpad.forceClick -bool false
+# "Force Click and haptic feedback" off. The driver reads ForceSuppressed;
+# com.apple.trackpad.forceClick alone is not enough. Takes effect after logout/restart.
+defaults write com.apple.AppleMultitouchTrackpad ForceSuppressed -bool true
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad ForceSuppressed -bool true
 defaults write NSGlobalDomain shouldShowRSVPDataDetectors -bool false
 
 defaults write -g ApplePressAndHoldEnabled -bool false
@@ -83,19 +87,34 @@ defaults -currentHost write com.apple.controlcenter Sound -int 18
 # macOS releases. A fresh machine may not have created that container yet, and
 # Terminal may not have permission to write it. These preferences should not
 # prevent the rest of chezmoi from applying.
-safari_defaults_failed=0
-defaults write com.apple.Safari AlwaysRestoreSessionAtLaunch -bool true 2>/dev/null || safari_defaults_failed=1
-defaults write com.apple.Safari AutoFillCreditCardData -bool false 2>/dev/null || safari_defaults_failed=1
-defaults write com.apple.Safari AutoFillPasswords -bool false 2>/dev/null || safari_defaults_failed=1
-defaults write com.apple.Safari IncludeDevelopMenu -bool true 2>/dev/null || safari_defaults_failed=1
-defaults write com.apple.Safari ShowOverlayStatusBar -bool true 2>/dev/null || safari_defaults_failed=1
-defaults write com.apple.Safari ShowStatusBar -bool true 2>/dev/null || safari_defaults_failed=1
-defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true 2>/dev/null || safari_defaults_failed=1
-defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true 2>/dev/null || safari_defaults_failed=1
-if [ "$safari_defaults_failed" -ne 0 ]; then
-  echo "Warning: Safari preferences could not be written; continuing setup." >&2
-  echo "Open Safari once and grant your terminal Full Disk Access if you want to apply them manually." >&2
+#
+# Preflight: reading the domain succeeds only when this terminal holds Full Disk
+# Access. Without it every write below is silently discarded, so skip the block
+# and say what the actual remedy is. Non-fatal either way.
+if defaults read com.apple.Safari >/dev/null 2>&1; then
+  defaults write com.apple.Safari AlwaysRestoreSessionAtLaunch -bool true
+  defaults write com.apple.Safari AutoFillCreditCardData -bool false
+  defaults write com.apple.Safari AutoFillPasswords -bool false
+  defaults write com.apple.Safari IncludeDevelopMenu -bool true
+  # Safari -> Settings -> Privacy -> "Require Touch ID to view locked tabs"
+  defaults write com.apple.Safari PrivateBrowsingRequiresAuthentication -bool false
+  # Safari 15+ reads the overlay key; keep the legacy one for older releases.
+  defaults write com.apple.Safari ShowOverlayStatusBar -bool true
+  defaults write com.apple.Safari ShowStatusBar -bool true
+  defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
+  defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true
+else
+  echo "Warning: Safari's preference container is not readable; skipping Safari defaults." >&2
+  echo "  Grant Full Disk Access: System Settings -> Privacy & Security -> Full Disk Access" >&2
+  echo "  -> add iTerm2 (or Terminal), then re-run: chezmoi apply" >&2
 fi
+
+# Calendar. Minutes-from-midnight. Quit Calendar before applying, or it will
+# overwrite these on exit. Keys really do contain spaces.
+defaults write com.apple.iCal "first minute of work hours" -int 540   # day starts 09:00
+defaults write com.apple.iCal "last minute of work hours" -int 1140   # day ends 19:00
+defaults write com.apple.iCal "TimeZone support enabled" -bool true
+defaults write com.apple.iCal "Show Week Numbers" -bool true
 
 defaults write com.googlecode.iterm2 PrefsCustomFolder -string "$HOME/.config/iterm2"
 defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true
