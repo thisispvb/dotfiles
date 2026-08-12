@@ -104,6 +104,7 @@ packages:
         - hashicorp/tap/vault
         - janosmiko/tap/lfk
         - k9s
+        - kubectl
         - libpq
         - openssl
         - postgresql
