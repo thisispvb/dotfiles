@@ -2,7 +2,8 @@
 
 set -e # -e: exit on error
 
-AGE_KEY_FILE="$HOME/.config/chezmoi/key.txt"
+# Overridable so the provisioning path can be exercised against a temp file.
+AGE_KEY_FILE="${AGE_KEY_FILE:-$HOME/.config/chezmoi/key.txt}"
 AGE_ACCOUNT="my.1password.eu"
 AGE_ITEM_UUID="jb7rxvjrxlp7kkhiieipzeruvy"
 AGE_KEY_ATTACHMENT_NAME="key.txt"
@@ -12,6 +13,60 @@ MAX_KEY_ATTEMPTS=3
 # key.txt (including comment lines), or a raw paste.
 extract_age_key() {
   grep -om1 'AGE-SECRET-KEY-1[A-Z0-9]*'
+}
+
+# 0 if /dev/tty can actually be opened. `[ -r /dev/tty ]` only checks the device
+# node's permissions and is true even where there is no controlling terminal, so
+# the prompts below would die on the redirect instead of falling back.
+tty_available() {
+  { : </dev/tty; } 2>/dev/null
+}
+
+# 0 if op is installed and has a live session for $AGE_ACCOUNT. This is the
+# single readiness gate: it fast-fails with "account is not signed in" when the
+# desktop app is locked, signed out, or CLI integration is off.
+op_ready() {
+  command -v op >/dev/null 2>&1 || return 1
+  op whoami --account "$AGE_ACCOUNT" >/dev/null 2>&1
+}
+
+# 0 if op knows about $AGE_ACCOUNT at all. Distinguishes "the app is not signed
+# in yet" (no account) from "CLI integration is off" (account, but no session).
+op_has_account() {
+  command -v op >/dev/null 2>&1 || return 1
+  op account list 2>/dev/null | grep -q "$AGE_ACCOUNT"
+}
+
+# Establish a session for $AGE_ACCOUNT if there isn't one. 0 when op is usable
+# afterwards. op's own stderr is kept visible: it explains the desktop-app case.
+op_signin() {
+  signin_out=""
+
+  op_ready && return 0
+  command -v op >/dev/null 2>&1 || return 1
+
+  # `op signin` writes the session exports to stdout and nothing on failure, so
+  # the exit status has to be tested before eval - `eval ""` always succeeds.
+  # Read from /dev/tty when available so the prompt works under `curl | sh`.
+  if tty_available; then
+    signin_out="$(op signin --account "$AGE_ACCOUNT" </dev/tty)" || signin_out=""
+  else
+    signin_out="$(op signin --account "$AGE_ACCOUNT")" || signin_out=""
+  fi
+  if [ -n "$signin_out" ]; then
+    eval "$signin_out"
+  fi
+
+  op_ready
+}
+
+# Why op cannot be used, and how to fix it.
+print_1password_auth_help() {
+  echo "Could not authenticate to 1Password ($AGE_ACCOUNT)." >&2
+  echo "The desktop app must be signed in and unlocked, and CLI integration" >&2
+  echo "must be enabled (Settings > Developer > Integrate with 1Password CLI)." >&2
+  echo "If you use the CLI standalone instead, add the account first:" >&2
+  echo "  op account add --address $AGE_ACCOUNT --email p@bargen.co" >&2
 }
 
 # Make Homebrew available on macOS: find an existing install that just isn't
@@ -35,7 +90,7 @@ ensure_homebrew() {
   done
 
   if [ -z "$brew_bin" ]; then
-    if [ ! -r /dev/tty ]; then
+    if ! tty_available; then
       echo "Homebrew is not installed and no terminal is available to install it." >&2
       return 1
     fi
@@ -67,6 +122,9 @@ ensure_homebrew() {
 # manual paste.
 ensure_1password() {
   casks=""
+  fruitless=0
+  reply=""
+  round=1
 
   [ "$(uname -s)" = "Darwin" ] || return 0
 
@@ -84,7 +142,7 @@ ensure_1password() {
     fi
     echo "Installing 1Password ($casks)..." >&2
     # shellcheck disable=SC2086 # word-splitting the cask list is intended
-    if ! HOMEBREW_CASK_OPTS="--no-quarantine --appdir=/Applications" brew install --cask $casks; then
+    if ! HOMEBREW_CASK_OPTS="--appdir=/Applications" brew install --cask $casks; then
       echo "Could not install 1Password via Homebrew." >&2
       return 1
     fi
@@ -96,21 +154,49 @@ ensure_1password() {
   fi
 
   # Already signed in with CLI integration? Nothing left to set up.
-  if op whoami >/dev/null 2>&1; then
+  if op_ready; then
     return 0
   fi
 
-  if [ ! -r /dev/tty ]; then
+  if ! tty_available; then
     return 1
   fi
 
-  open -a 1Password || true
-  echo "" >&2
-  echo "1Password has been opened. To let this script fetch the age key:" >&2
-  echo "  1. Sign in to the app (scanning the QR code from another device works)." >&2
-  echo "  2. Enable Settings > Developer > Integrate with 1Password CLI." >&2
-  printf 'Press Enter when done (or to skip and paste the key manually): ' >/dev/tty
-  IFS= read -r _ </dev/tty || true
+  # Guide, then verify. Up to three rounds, because getting this right on a
+  # fresh machine is two separate steps in the app and it is easy to do one.
+  while [ "$round" -le 3 ]; do
+    open -a 1Password >/dev/null 2>&1 || true
+    echo "" >&2
+    if op_has_account; then
+      # op knows the account, so the app is signed in: the integration toggle
+      # is what's missing (or the app is locked).
+      echo "1Password is open but the CLI cannot talk to it yet." >&2
+      echo "  1. Enable Settings > Developer > Integrate with 1Password CLI." >&2
+      echo "  2. Make sure the app is unlocked and signed in to $AGE_ACCOUNT." >&2
+    else
+      echo "1Password is open but no account is set up on this machine yet." >&2
+      echo "  1. Sign in to the app (scanning the QR code from another device works)." >&2
+      echo "  2. Enable Settings > Developer > Integrate with 1Password CLI." >&2
+    fi
+    printf 'Press Enter when done (or again to skip and paste the key manually): ' >/dev/tty
+    IFS= read -r reply </dev/tty || reply=""
+
+    if op_signin; then
+      echo "1Password CLI integration is working." >&2
+      return 0
+    fi
+
+    if [ -z "$reply" ]; then
+      fruitless=$((fruitless + 1))
+      if [ "$fruitless" -ge 2 ]; then
+        break
+      fi
+    fi
+    round=$((round + 1))
+  done
+
+  print_1password_auth_help
+  return 1
 }
 
 # Print the age key to stdout, fetched from 1Password. Fails if not signed in
@@ -123,14 +209,10 @@ fetch_age_key_from_1password() {
   vault_block=""
   vault_uuid=""
 
-  if ! op whoami --account "$AGE_ACCOUNT" >/dev/null 2>&1; then
+  if ! op_ready; then
     echo "Signing in to 1Password ($AGE_ACCOUNT)..." >&2
-    if ! eval "$(op signin --account "$AGE_ACCOUNT")"; then
-      echo "Could not sign in to 1Password." >&2
-      echo "If no account is configured on this machine yet, run:" >&2
-      echo "  op account add --address $AGE_ACCOUNT --email p@bargen.co" >&2
-      echo "or enable CLI integration in the 1Password desktop app" >&2
-      echo "(Settings > Developer > Integrate with 1Password CLI)." >&2
+    if ! op_signin; then
+      print_1password_auth_help
       return 1
     fi
   fi
@@ -179,9 +261,15 @@ fetch_age_key_from_1password() {
     return 0
   fi
 
-  echo "Could not read $AGE_KEY_ATTACHMENT_NAME from 1Password item $AGE_ITEM_UUID." >&2
-  echo "Check that the item is available in the $AGE_ACCOUNT account and that" >&2
-  echo "its credential, notes, document, or $AGE_KEY_ATTACHMENT_NAME attachment contains the age key." >&2
+  # Only blame the item's shape if we actually got through the door; losing the
+  # session mid-read is an auth problem, not a missing attachment.
+  if op_ready; then
+    echo "Could not read $AGE_KEY_ATTACHMENT_NAME from 1Password item $AGE_ITEM_UUID." >&2
+    echo "Check that the item is available in the $AGE_ACCOUNT account and that" >&2
+    echo "its credential, notes, document, or $AGE_KEY_ATTACHMENT_NAME attachment contains the age key." >&2
+  else
+    print_1password_auth_help
+  fi
   return 1
 }
 
@@ -204,7 +292,7 @@ provision_age_key() {
   fi
 
   if [ -z "$raw" ]; then
-    if [ ! -r /dev/tty ]; then
+    if ! tty_available; then
       echo "No terminal available to paste the key." >&2
       echo "Restore $AGE_KEY_FILE manually, then re-run this script." >&2
       return 2
@@ -239,9 +327,11 @@ main() {
     echo "Continuing without Homebrew; chezmoi apply may fail until it is installed." >&2
   fi
 
-  # Only bother with 1Password if the age key still needs fetching and op
-  # isn't already around. Failures fall through to the manual-paste prompt.
-  if [ ! -f "$AGE_KEY_FILE" ] && ! command -v op >/dev/null 2>&1; then
+  # Only bother with 1Password if the age key still needs fetching and op can't
+  # already talk to it. Installed-but-unusable is the common fresh-machine case,
+  # so gate on usability, not on presence. Failures fall through to the
+  # manual-paste prompt.
+  if [ ! -f "$AGE_KEY_FILE" ] && ! op_ready; then
     ensure_1password || true
   fi
 
