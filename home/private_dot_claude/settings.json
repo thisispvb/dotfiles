@@ -73,8 +73,9 @@
   "effortLevel": "medium",
   "showClearContextOnPlanAccept": true,
   "tui": "fullscreen",
+  "theme": "dark",
   "skipAutoPermissionPrompt": true,
-  "useAutoModeDuringPlan": false,
+  "useAutoModeDuringPlan": true,
   "voiceEnabled": true,
   "notifications": {
     "enabled": false
