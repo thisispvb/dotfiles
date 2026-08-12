@@ -82,6 +82,12 @@ defaults write com.apple.screensaver askForPasswordDelay -int 0
 defaults write com.apple.systempreferences NSQuitAlwaysKeepsWindows -bool false
 defaults -currentHost write com.apple.controlcenter Bluetooth -int 18
 defaults -currentHost write com.apple.controlcenter Sound -int 18
+{{ if .radixils }}
+# AirPlay Receiver binds ports 5000 and 7000 via the ControlCenter process, and
+# 5000 collides with a Radix ILS service default. Work machines only.
+defaults -currentHost write com.apple.controlcenter AirplayReceiverEnabled -bool false
+killall ControlCenter 2>/dev/null || true
+{{ end }}
 
 # Safari's preferences live in a privacy-protected app container on current
 # macOS releases. A fresh machine may not have created that container yet, and
@@ -94,6 +100,8 @@ defaults -currentHost write com.apple.controlcenter Sound -int 18
 if defaults read com.apple.Safari >/dev/null 2>&1; then
   defaults write com.apple.Safari AlwaysRestoreSessionAtLaunch -bool true
   defaults write com.apple.Safari AutoFillCreditCardData -bool false
+  # Passwords live in 1Password, never Safari/the Passwords app. This also
+  # suppresses Safari's "save this password?" prompt.
   defaults write com.apple.Safari AutoFillPasswords -bool false
   defaults write com.apple.Safari IncludeDevelopMenu -bool true
   # Safari -> Settings -> Privacy -> "Require Touch ID to view locked tabs"
@@ -146,6 +154,16 @@ sudo nvram StartupMute=%01
 #   "System Preferences" ; do
 #   dockutil --find "$dockItemLabel" >/dev/null && dockutil --no-restart --remove "$dockItemLabel"
 # done
+
+# AutoFill provider selection and Safari extension enablement are owned by
+# AuthenticationServicesAgent and Safari, not by user defaults, so they cannot be
+# scripted. Nag once instead of failing.
+if ! defaults read com.1password.safari.extension >/dev/null 2>&1; then
+  echo "Note: finish the 1Password setup by hand (one time per machine):" >&2
+  echo "  1. Safari -> Settings -> Extensions -> enable 1Password for Safari" >&2
+  echo "  2. System Settings -> General -> AutoFill & Passwords ->" >&2
+  echo "     turn OFF 'Passwords', turn ON '1Password'" >&2
+fi
 
 killall Dock 2>/dev/null || true
 killall SystemUIServer 2>/dev/null || true
