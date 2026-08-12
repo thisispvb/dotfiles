@@ -6,10 +6,13 @@ Philip's dotfiles, managed with [`chezmoi`](https://github.com/twpayne/chezmoi).
 
     sh -c "$(curl -fsLS https://raw.githubusercontent.com/thisispvb/dotfiles/main/install.sh)"
 
-This bootstraps everything in one go: it provisions the age key that encrypts
-the repo's secrets (fetched from 1Password via `op` if available, otherwise it
-prompts you to paste the key), installs `chezmoi` if needed, clones this repo,
-and applies the dotfiles.
+This bootstraps everything in one go. On a fresh Mac it installs Homebrew
+(which brings the Xcode Command Line Tools) and the 1Password app + CLI, walks
+you through signing in to 1Password and enabling its CLI integration, then
+fetches the age key that encrypts the repo's secrets automatically. It
+installs `chezmoi` if needed, clones this repo, and applies the dotfiles. On
+Linux, or if the 1Password setup is skipped, it prompts you to paste the age
+key instead.
 
 If `chezmoi` and the age key (`~/.config/chezmoi/key.txt`) are already in
 place, this works too:

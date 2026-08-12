@@ -14,6 +14,105 @@ extract_age_key() {
   grep -om1 'AGE-SECRET-KEY-1[A-Z0-9]*'
 }
 
+# Make Homebrew available on macOS: find an existing install that just isn't
+# on PATH yet, or run the official installer. Puts brew on PATH for the rest
+# of this script. Best-effort: returns non-zero if brew cannot be made
+# available.
+ensure_homebrew() {
+  brew_bin=""
+
+  [ "$(uname -s)" = "Darwin" ] || return 0
+  if command -v brew >/dev/null 2>&1; then
+    return 0
+  fi
+
+  # Installed (possibly by another account) but not on this shell's PATH.
+  for candidate in /opt/homebrew/bin/brew /usr/local/bin/brew; do
+    if [ -x "$candidate" ]; then
+      brew_bin="$candidate"
+      break
+    fi
+  done
+
+  if [ -z "$brew_bin" ]; then
+    if [ ! -r /dev/tty ]; then
+      echo "Homebrew is not installed and no terminal is available to install it." >&2
+      return 1
+    fi
+    echo "Installing Homebrew (this also installs the Xcode Command Line Tools)..." >&2
+    # Attach the tty so the installer's sudo/confirmation prompts work even
+    # though this script is usually piped via stdin (curl | sh).
+    if ! /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" </dev/tty; then
+      echo "Homebrew installation failed." >&2
+      return 1
+    fi
+    for candidate in /opt/homebrew/bin/brew /usr/local/bin/brew; do
+      if [ -x "$candidate" ]; then
+        brew_bin="$candidate"
+        break
+      fi
+    done
+    if [ -z "$brew_bin" ]; then
+      echo "Homebrew installer finished but brew was not found." >&2
+      return 1
+    fi
+  fi
+
+  eval "$("$brew_bin" shellenv)"
+}
+
+# Install the 1Password app + CLI via Homebrew and walk through app-based CLI
+# integration so the age key can be fetched automatically (macOS only).
+# Best-effort: any failure just means provision_age_key falls back to a
+# manual paste.
+ensure_1password() {
+  casks=""
+
+  [ "$(uname -s)" = "Darwin" ] || return 0
+
+  if ! command -v op >/dev/null 2>&1; then
+    casks="1password-cli"
+  fi
+  if [ ! -d "/Applications/1Password.app" ] && [ ! -d "$HOME/Applications/1Password.app" ]; then
+    casks="1password $casks"
+  fi
+
+  if [ -n "$casks" ]; then
+    if ! command -v brew >/dev/null 2>&1; then
+      echo "Homebrew is not available; skipping 1Password installation." >&2
+      return 1
+    fi
+    echo "Installing 1Password ($casks)..." >&2
+    # shellcheck disable=SC2086 # word-splitting the cask list is intended
+    if ! HOMEBREW_CASK_OPTS="--no-quarantine --appdir=/Applications" brew install --cask $casks; then
+      echo "Could not install 1Password via Homebrew." >&2
+      return 1
+    fi
+  fi
+
+  if ! command -v op >/dev/null 2>&1; then
+    echo "1Password CLI (op) is still not available after installation." >&2
+    return 1
+  fi
+
+  # Already signed in with CLI integration? Nothing left to set up.
+  if op whoami >/dev/null 2>&1; then
+    return 0
+  fi
+
+  if [ ! -r /dev/tty ]; then
+    return 1
+  fi
+
+  open -a 1Password || true
+  echo "" >&2
+  echo "1Password has been opened. To let this script fetch the age key:" >&2
+  echo "  1. Sign in to the app (scanning the QR code from another device works)." >&2
+  echo "  2. Enable Settings > Developer > Integrate with 1Password CLI." >&2
+  printf 'Press Enter when done (or to skip and paste the key manually): ' >/dev/tty
+  IFS= read -r _ </dev/tty || true
+}
+
 # Print the age key to stdout, fetched from 1Password. Fails if not signed in
 # or the item cannot be read.
 fetch_age_key_from_1password() {
@@ -136,16 +235,30 @@ provision_age_key() {
 }
 
 main() {
+  if ! ensure_homebrew; then
+    echo "Continuing without Homebrew; chezmoi apply may fail until it is installed." >&2
+  fi
+
+  # Only bother with 1Password if the age key still needs fetching and op
+  # isn't already around. Failures fall through to the manual-paste prompt.
+  if [ ! -f "$AGE_KEY_FILE" ] && ! command -v op >/dev/null 2>&1; then
+    ensure_1password || true
+  fi
+
   if [ ! "$(command -v chezmoi)" ]; then
-    bin_dir="$HOME/.local/bin"
-    chezmoi="$bin_dir/chezmoi"
-    if [ "$(command -v curl)" ]; then
-      sh -c "$(curl -fsSL https://git.io/chezmoi)" -- -b "$bin_dir"
-    elif [ "$(command -v wget)" ]; then
-      sh -c "$(wget -qO- https://git.io/chezmoi)" -- -b "$bin_dir"
+    if command -v brew >/dev/null 2>&1 && brew install chezmoi; then
+      chezmoi=chezmoi
     else
-      echo "To install chezmoi, you must have curl or wget installed." >&2
-      exit 1
+      bin_dir="$HOME/.local/bin"
+      chezmoi="$bin_dir/chezmoi"
+      if [ "$(command -v curl)" ]; then
+        sh -c "$(curl -fsSL https://get.chezmoi.io)" -- -b "$bin_dir"
+      elif [ "$(command -v wget)" ]; then
+        sh -c "$(wget -qO- https://get.chezmoi.io)" -- -b "$bin_dir"
+      else
+        echo "To install chezmoi, you must have curl or wget installed." >&2
+        exit 1
+      fi
     fi
   else
     chezmoi=chezmoi
