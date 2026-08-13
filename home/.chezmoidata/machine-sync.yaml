@@ -1,0 +1,5 @@
+machineSync:
+  # Paths are relative to $HOME. The OneDrive client creates onedriveRelDir on
+  # sign-in, so templates stat it before laying down anything that points into it.
+  onedriveRelDir: "Library/CloudStorage/OneDrive-RadixCapitalManagementLtd"
+  syncRelDir: "MachineSync"

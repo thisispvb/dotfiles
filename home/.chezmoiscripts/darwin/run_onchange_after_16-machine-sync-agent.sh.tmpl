@@ -1,0 +1,23 @@
+{{- if and .radixils (eq .chezmoi.os "darwin") -}}
+#!/usr/bin/env bash
+
+# (Re)loads the daily machine-state backup agent. The manual script stays the
+# primary interface; this is the safety net for the days it isn't run.
+#
+# plist hash: {{ include "Library/LaunchAgents/com.pvb.machine-state-backup.plist.tmpl" | sha256sum }}
+
+set -eufo pipefail
+
+onedrive_root="{{ includeTemplate "onedrive-root" . }}"
+plist="$HOME/Library/LaunchAgents/com.pvb.machine-state-backup.plist"
+label="com.pvb.machine-state-backup"
+
+if [ ! -d "$onedrive_root" ] || [ ! -f "$plist" ]; then
+  echo "⏭️  OneDrive not set up — skipping the machine-state backup agent"
+  exit 0
+fi
+
+echo "⏰ Loading $label"
+launchctl bootout "gui/$(id -u)/$label" 2>/dev/null || true
+launchctl bootstrap "gui/$(id -u)" "$plist"
+{{- end }}

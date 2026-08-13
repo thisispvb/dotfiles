@@ -70,6 +70,7 @@
       }
     }
   },
+  "cleanupPeriodDays": 90,
   "effortLevel": "medium",
   "showClearContextOnPlanAccept": true,
   "tui": "fullscreen",

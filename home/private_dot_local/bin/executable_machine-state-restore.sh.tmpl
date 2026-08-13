@@ -1,0 +1,119 @@
+{{- if and .radixils (eq .chezmoi.os "darwin") -}}
+#!/usr/bin/env bash
+
+# Restores what machine-state-backup.sh wrote to OneDrive onto this Mac.
+# Run it once on a new machine, after OneDrive has finished downloading
+# MachineSync/ and after the repos under ~/git/rdx have been cloned.
+
+set -eufo pipefail
+
+machine_sync_dir="{{ includeTemplate "machine-sync-dir" . }}"
+backups_dir="$machine_sync_dir/backups"
+repo_root="$HOME/git/rdx"
+
+force=""
+dry_run=""
+verbose=""
+source_host=""
+
+usage() {
+  cat <<'EOF'
+Usage: machine-state-restore.sh <source-hostname> [options]
+
+  -n, --dry-run  Show what would be restored, write nothing
+  -v, --verbose  List every transferred file
+  -f, --force    Restore even though ~/.claude/projects already has content
+                 (refused by default — it means this Mac is already in use)
+  -h, --help     This message
+EOF
+}
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -n|--dry-run) dry_run="--dry-run"; verbose="-v" ;;
+    -v|--verbose) verbose="-v" ;;
+    -f|--force) force="yes" ;;
+    -h|--help) usage; exit 0 ;;
+    -*) echo "Unknown argument: $1" >&2; usage >&2; exit 2 ;;
+    *)
+      if [ -n "$source_host" ]; then
+        echo "Only one source hostname may be given" >&2
+        exit 2
+      fi
+      source_host="$1"
+      ;;
+  esac
+  shift
+done
+
+if [ -z "$source_host" ]; then
+  usage >&2
+  if [ -d "$backups_dir" ]; then
+    echo >&2
+    echo "Available backups in $backups_dir:" >&2
+    find "$backups_dir" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; >&2
+  fi
+  exit 2
+fi
+
+src="$backups_dir/$source_host"
+if [ ! -d "$src" ]; then
+  echo "No backup for '$source_host' in $backups_dir" >&2
+  echo "If OneDrive is still downloading, wait for it to finish first." >&2
+  exit 1
+fi
+
+if [ -d "$HOME/.claude/projects" ] && [ -n "$(ls -A "$HOME/.claude/projects")" ] && [ -z "$force" ]; then
+  echo "Refusing to restore: ~/.claude/projects already has content." >&2
+  echo "This Mac looks like it is already in use. Re-run with --force to merge anyway." >&2
+  exit 1
+fi
+
+# <source> <destination-dir>
+restore_into() {
+  local from="$1" dest="$2"
+  if [ ! -e "$from" ]; then
+    echo "   skip (absent): $from"
+    return 0
+  fi
+  mkdir -p "$dest"
+  rsync -a $dry_run $verbose "$from" "$dest"
+}
+
+echo "♻️  Restoring machine state from $src"
+if [ -n "$dry_run" ]; then
+  echo "   (dry run — nothing will be written)"
+fi
+
+echo "→ Claude Code state"
+restore_into "$src/claude/projects" "$HOME/.claude/"
+restore_into "$src/claude/memory" "$HOME/.claude/"
+restore_into "$src/claude/tasks" "$HOME/.claude/"
+restore_into "$src/claude/jobs" "$HOME/.claude/"
+restore_into "$src/claude/plugins" "$HOME/.claude/"
+restore_into "$src/claude/history.jsonl" "$HOME/.claude/"
+restore_into "$src/claude/.claude.json" "$HOME/"
+
+echo "→ Repo-local state"
+if [ -d "$src/repos" ]; then
+  while IFS= read -r repo_path; do
+    repo_name="$(basename "$repo_path")"
+    if [ -d "$repo_root/$repo_name" ]; then
+      rsync -a $dry_run $verbose "$repo_path/" "$repo_root/$repo_name/"
+      echo "   restored into $repo_root/$repo_name"
+    else
+      echo "⚠️  $repo_root/$repo_name is not cloned — clone it, then re-run this script" >&2
+    fi
+  done < <(find "$src/repos" -mindepth 1 -maxdepth 1 -type d | sort)
+else
+  echo "   skip (absent): $src/repos"
+fi
+
+if [ -d "$src/shell" ]; then
+  echo "→ Shell history is at $src/shell — merge it by hand, it is not copied over a live one"
+fi
+
+echo "✅ Done"
+echo "   Next: run 'direnv allow' in each restored repo, and restart Claude Code"
+echo "   so it picks up the restored ~/.claude.json."
+{{- end }}

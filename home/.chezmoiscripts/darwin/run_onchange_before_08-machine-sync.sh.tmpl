@@ -1,0 +1,40 @@
+{{- if and .radixils (eq .chezmoi.os "darwin") -}}
+#!/usr/bin/env bash
+
+# Provisions the OneDrive machine-state tree and adopts ~/.claude/plans into it,
+# so the symlink chezmoi lays down right after this has somewhere to point.
+#
+# OneDrive present when this script was rendered: {{ if stat (includeTemplate "onedrive-root" .) }}yes{{ else }}no{{ end }}
+# (that line changes once OneDrive is signed in, which re-triggers run_onchange)
+
+set -eufo pipefail
+
+onedrive_root="{{ includeTemplate "onedrive-root" . }}"
+machine_sync_dir="{{ includeTemplate "machine-sync-dir" . }}"
+plans_dir="$HOME/.claude/plans"
+plans_target="$machine_sync_dir/claude/plans"
+
+if [ ! -d "$onedrive_root" ]; then
+  echo "⏭️  OneDrive not signed in ($onedrive_root missing) — skipping machine-state sync setup"
+  exit 0
+fi
+
+echo "☁️  Setting up machine-state sync in $machine_sync_dir"
+
+mkdir -p "$plans_target" "$machine_sync_dir/backups/$(hostname -s)"
+
+# One-time adoption: a real ~/.claude/plans directory predates the symlink.
+if [ -d "$plans_dir" ] && [ ! -L "$plans_dir" ]; then
+  if [ -z "$(ls -A "$plans_dir")" ]; then
+    rmdir "$plans_dir"
+  elif [ -z "$(ls -A "$plans_target")" ]; then
+    echo "   Moving $(find "$plans_dir" -type f | wc -l | tr -d ' ') plan files into OneDrive"
+    cp -R "$plans_dir/." "$plans_target/"
+    rm -rf "$plans_dir"
+  else
+    echo "⚠️  Both $plans_dir and $plans_target have content — merge them by hand," >&2
+    echo "    then remove $plans_dir so chezmoi can create the symlink." >&2
+    exit 1
+  fi
+fi
+{{- end }}

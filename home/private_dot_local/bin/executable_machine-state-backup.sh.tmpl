@@ -1,0 +1,117 @@
+{{- if and .radixils (eq .chezmoi.os "darwin") -}}
+#!/usr/bin/env bash
+
+# Copies the machine state that no version control covers into OneDrive:
+# Claude Code transcripts/memory/plugins, ~/.claude.json, and an allowlist of
+# repo-local files. Restore the other side with machine-state-restore.sh.
+#
+# rsync runs WITHOUT --delete on purpose: Claude Code prunes its own old
+# transcripts, and an additive archive keeps them past that prune.
+
+set -eufo pipefail
+
+machine_sync_dir="{{ includeTemplate "machine-sync-dir" . }}"
+backup_root="$machine_sync_dir/backups/$(hostname -s)"
+log_file="$machine_sync_dir/backups/backup.log"
+repo_root="$HOME/git/rdx"
+
+dry_run=""
+verbose=""
+with_shell_history=""
+
+usage() {
+  cat <<'EOF'
+Usage: machine-state-backup.sh [options]
+
+  -n, --dry-run             Show what would be copied, copy nothing
+  -v, --verbose             List every transferred file
+      --with-shell-history  Also back up ~/.zsh_history (may contain secrets
+                            typed on the command line — opt in deliberately)
+  -h, --help                This message
+EOF
+}
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -n|--dry-run) dry_run="--dry-run"; verbose="-v" ;;
+    -v|--verbose) verbose="-v" ;;
+    --with-shell-history) with_shell_history="yes" ;;
+    -h|--help) usage; exit 0 ;;
+    *) echo "Unknown argument: $1" >&2; usage >&2; exit 2 ;;
+  esac
+  shift
+done
+
+if [ ! -d "$machine_sync_dir" ]; then
+  echo "OneDrive sync directory not found: $machine_sync_dir" >&2
+  echo "Sign in to OneDrive, then run 'chezmoi apply' to create it." >&2
+  exit 1
+fi
+
+# <source> <destination-dir> [extra rsync args...]
+sync_into() {
+  local src="$1" dest="$2"
+  shift 2
+  if [ ! -e "$src" ]; then
+    echo "   skip (absent): $src"
+    return 0
+  fi
+  mkdir -p "$dest"
+  rsync -a $dry_run $verbose "$@" "$src" "$dest"
+}
+
+echo "💾 Backing up machine state to $backup_root"
+if [ -n "$dry_run" ]; then
+  echo "   (dry run — nothing will be written)"
+fi
+
+echo "→ Claude Code state"
+sync_into "$HOME/.claude/projects" "$backup_root/claude/"
+sync_into "$HOME/.claude/memory" "$backup_root/claude/"
+sync_into "$HOME/.claude/tasks" "$backup_root/claude/"
+sync_into "$HOME/.claude/jobs" "$backup_root/claude/"
+sync_into "$HOME/.claude/plugins" "$backup_root/claude/" --exclude "cache/"
+sync_into "$HOME/.claude/history.jsonl" "$backup_root/claude/"
+sync_into "$HOME/.claude.json" "$backup_root/claude/"
+
+# Strict allowlist, never a recursive copy of the repo trees and never "every
+# gitignored file": tracked files come back from the remote, and the gitignored
+# build artifacts (node_modules/, .turbo/, .next/, backend job caches that run to
+# hundreds of GB) are regenerable. A new precious path is one more line here.
+echo "→ Repo-local state ($repo_root)"
+rel_paths=()
+rel_count=0
+if [ -d "$repo_root/rdx-web/tmp" ]; then
+  rel_paths[$rel_count]="./rdx-web/tmp"
+  rel_count=$((rel_count + 1))
+fi
+if [ -d "$repo_root" ]; then
+  # depth 4 reaches apps/<app>/.env.local; the glob also covers .envrc for direnv
+  while IFS= read -r env_file; do
+    rel_paths[$rel_count]="$env_file"
+    rel_count=$((rel_count + 1))
+  done < <(cd "$repo_root" && find . -maxdepth 4 -name ".env*" -type f -not -path "*/node_modules/*" | sort)
+fi
+
+if [ "$rel_count" -gt 0 ]; then
+  mkdir -p "$backup_root/repos"
+  echo "   $rel_count path(s): ${rel_paths[*]}"
+  (cd "$repo_root" && rsync -a -R $dry_run $verbose "${rel_paths[@]}" "$backup_root/repos/")
+else
+  echo "   skip (absent): nothing matched under $repo_root"
+fi
+
+if [ -n "$with_shell_history" ]; then
+  echo "→ Shell history"
+  sync_into "$HOME/.zsh_history" "$backup_root/shell/"
+fi
+
+if [ -z "$dry_run" ]; then
+  mkdir -p "$(dirname "$log_file")"
+  printf '%s  %s  ok\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$(hostname -s)" >>"$log_file"
+  echo "✅ Done — $(du -sh "$backup_root" | cut -f1) in $backup_root"
+  echo "   Wait for the OneDrive menu bar to report 'up to date' before retiring this Mac."
+else
+  echo "✅ Dry run complete"
+fi
+{{- end }}

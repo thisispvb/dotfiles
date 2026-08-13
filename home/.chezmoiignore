@@ -46,4 +46,17 @@ Documents
 .claude/file-history/
 .claude/shell-snapshots/
 .claude/debug/
-.claude/plans/
+.claude/hud/cache/
+
+# Machine-state sync (OneDrive). The plans symlink and the backup tooling only
+# belong on a work Mac, and only once the OneDrive client has created its root —
+# without the stat check a fresh machine gets a dangling ~/.claude/plans symlink.
+{{ if or (not .radixils) (ne .chezmoi.os "darwin") }}
+.claude/plans
+.local/bin/machine-state-backup.sh
+.local/bin/machine-state-restore.sh
+Library
+{{ else if not (stat (includeTemplate "onedrive-root" .)) }}
+.claude/plans
+Library
+{{ end }}

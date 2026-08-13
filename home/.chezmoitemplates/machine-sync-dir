@@ -1,0 +1,1 @@
+{{- printf "%s/%s/%s" .chezmoi.homeDir .machineSync.onedriveRelDir .machineSync.syncRelDir -}}
