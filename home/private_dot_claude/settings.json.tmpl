@@ -9,6 +9,16 @@
   },
   "includeCoAuthoredBy": false,
   "permissions": {
+{{- /*
+  ~/.claude/plans is a symlink into OneDrive (see docs/new-machine.md), which puts
+  every plan-mode write outside the working directory. additionalDirectories takes
+  absolute paths only — no ~ expansion — and the allow rules below need BOTH the
+  symlink path and its resolved target, because path rules are matched against each.
+  Scoped to claude/plans, never the OneDrive root: the rest of it is company files.
+*/}}
+{{- if and .radixils (eq .chezmoi.os "darwin") }}
+    "additionalDirectories": ["{{ includeTemplate "machine-sync-dir" . }}/claude/plans"],
+{{- end }}
     "allow": [
       "Read",
       "Glob",
@@ -40,6 +50,12 @@
       "Bash(git tag *)",
       "Bash(* --version)",
       "Bash(* --help)"
+{{- if and .radixils (eq .chezmoi.os "darwin") }},
+      "Edit(~/.claude/plans/**)",
+      "Write(~/.claude/plans/**)",
+      "Edit(/{{ includeTemplate "machine-sync-dir" . }}/claude/plans/**)",
+      "Write(/{{ includeTemplate "machine-sync-dir" . }}/claude/plans/**)"
+{{- end }}
     ],
     "deny": [
       "Read(~/.config/rdx/secrets.zsh)",

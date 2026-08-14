@@ -32,6 +32,13 @@ The backup is additive and per-hostname, so restoring never races the daily
 launchd agent (`com.pvb.machine-state-backup`, 13:30, logs to
 `~/Library/Logs/machine-state-backup.log`).
 
+Because `~/.claude/plans` is a symlink, plan-mode writes land outside the working
+directory and Claude Code prompts for each one. `settings.json.tmpl` pre-authorizes
+them — `additionalDirectories` plus allow rules for *both* the symlink path and its
+resolved OneDrive target, since path rules are matched against each. The rules are
+scoped to `claude/plans`; never widen them to the OneDrive root, which holds company
+files. If plan writes start prompting again, that block is the first place to look.
+
 What is deliberately *not* synced: caches, `shell-snapshots/`, `file-history/`,
 `sessions/`, and live session resume across machines. Transcripts are durable;
 an in-flight session is not portable.
