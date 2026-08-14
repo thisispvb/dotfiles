@@ -1,4 +1,5 @@
 {
+  "cleanupPeriodDays": 90,
   "env": {
     "OMC_SKIP_HOOKS": "project-memory"
   },
@@ -45,7 +46,7 @@
       "Read(~/.config/rdx/env.zsh)"
     ]
   },
-  "model": "opusplan",
+  "model": "opus[1m]",
   "statusLine": {
     "type": "command",
     "command": "sh ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud-cache.sh ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud.mjs"
@@ -67,11 +68,11 @@
       "source": {
         "source": "git",
         "url": "https://github.com/Yeachan-Heo/oh-my-claudecode.git"
-      }
+      },
+      "autoUpdate": true
     }
   },
-  "cleanupPeriodDays": 90,
-  "effortLevel": "medium",
+  "effortLevel": "high",
   "showClearContextOnPlanAccept": true,
   "tui": "fullscreen",
   "theme": "dark",
