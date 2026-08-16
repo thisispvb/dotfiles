@@ -7,6 +7,10 @@
 .local/share/fonts
 {{ end }}
 
+{{ if ne .chezmoi.os "darwin" }}
+Applications/New VLC Window.app
+{{ end }}
+
 {{ if ne .chezmoi.os "windows" }}
 Documents
 {{ else }}
