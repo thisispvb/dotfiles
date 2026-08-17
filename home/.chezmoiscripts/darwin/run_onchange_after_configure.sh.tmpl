@@ -78,6 +78,12 @@ defaults write com.apple.WindowManager StandardHideWidgets -int 1
 # Keep the legacy defaults writes for compatibility, then enforce the current setting via sysadminctl.
 defaults write com.apple.screensaver askForPassword -int 1
 defaults write com.apple.screensaver askForPasswordDelay -int 0
+if /usr/sbin/sysadminctl -h 2>&1 | /usr/bin/grep -q -- '-screenLock'; then
+  screen_lock_status="$(/usr/sbin/sysadminctl -screenLock status 2>&1 || true)"
+  if [[ "$screen_lock_status" != *"screenLock delay is immediate"* ]]; then
+    /usr/sbin/sysadminctl -screenLock immediate -password -
+  fi
+fi
 
 # Enable the macOS Application Firewall.
 sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on
