@@ -80,6 +80,7 @@ defaults write com.apple.screensaver askForPassword -int 1
 defaults write com.apple.screensaver askForPasswordDelay -int 0
 
 defaults write com.apple.systempreferences NSQuitAlwaysKeepsWindows -bool false
+defaults -currentHost write com.apple.controlcenter BatteryShowPercentage -bool true
 defaults -currentHost write com.apple.controlcenter Bluetooth -int 18
 defaults -currentHost write com.apple.controlcenter Sound -int 18
 {{ if .radixils }}
