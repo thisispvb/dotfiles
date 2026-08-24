@@ -16,9 +16,6 @@
   symlink path and its resolved target, because path rules are matched against each.
   Scoped to claude/plans, never the OneDrive root: the rest of it is company files.
 */}}
-{{- if and .radixils (eq .chezmoi.os "darwin") }}
-    "additionalDirectories": ["{{ includeTemplate "machine-sync-dir" . }}/claude/plans"],
-{{- end }}
     "allow": [
       "Read",
       "Glob",
@@ -58,7 +55,12 @@
     "deny": [
       "Read(~/.config/rdx/secrets.zsh)",
       "Read(~/.config/rdx/env.zsh)"
+    ],
+{{- if and .radixils (eq .chezmoi.os "darwin") }}
+    "additionalDirectories": [
+      "{{ includeTemplate "machine-sync-dir" . }}/claude/plans"
     ]
+{{- end }}
   },
   "model": "opus[1m]",
   "statusLine": {
@@ -87,6 +89,15 @@
     }
   },
   "effortLevel": "high",
+  "modelSettings": {
+    "claude-fable-5": {
+      "effortLevel": "high"
+    },
+    "claude-opus-5": {
+      "effortLevel": "high"
+    }
+  },
+  "outputStyle": "Concise",
   "showClearContextOnPlanAccept": true,
   "tui": "fullscreen",
   "theme": "dark",
