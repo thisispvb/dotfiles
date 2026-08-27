@@ -1,0 +1,18 @@
+version: 1
+secure_root: /Volumes/Obsidian Vaults
+state_root: /Volumes/Obsidian Vaults/.vault-sidecar
+privacy_property: sidecar-access
+profiles:
+  personal:
+    kind: readonly
+    vault: Personal
+    expected_path: /Volumes/Obsidian Vaults/Personal
+    default_access: excluded
+  scratch:
+    kind: scratch
+    vault: scratch-vault
+    expected_path: /Volumes/Obsidian Vaults/.vault-sidecar/scratch-vault
+    default_access: excluded
+artifact_access:
+  scratch:
+    Sidecar Fixture.base: cloud

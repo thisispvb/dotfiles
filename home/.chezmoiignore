@@ -35,6 +35,10 @@ Documents
 .config/rdx
 {{ end }}
 
+{{ if ne .chezmoi.os "darwin" }}
+.config/vault-sidecar
+{{ end }}
+
 # Claude Code runtime and ephemeral files
 .claude/.session-stats.json
 .claude/stats-cache.json
