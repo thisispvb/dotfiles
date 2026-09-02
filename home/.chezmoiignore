@@ -55,6 +55,10 @@ Documents
 .claude/shell-snapshots/
 .claude/debug/
 .claude/hud/cache/
+.claude/.omc-config.json.bak
+.claude/backups/
+.claude/skills/omc-reference/
+.claude/skills/wiki/
 
 # Machine-state sync (OneDrive). The plans symlink and the backup tooling only
 # belong on a work Mac, and only once the OneDrive client has created its root —

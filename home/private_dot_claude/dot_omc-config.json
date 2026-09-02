@@ -1,5 +1,4 @@
 {
-  "defaultExecutionMode": "ultrawork",
   "configuredAt": "2026-02-16T14:27:08Z",
   "taskTool": "builtin",
   "taskToolConfig": {
@@ -7,6 +6,6 @@
     "useMcp": false
   },
   "setupCompleted": "2026-02-16T15:39:06+01:00",
-  "setupVersion": "v4.14.5",
+  "setupVersion": "v5.1.0",
   "nodeBinary": "~/.asdf/installs/nodejs/24.15.0/bin/node"
 }

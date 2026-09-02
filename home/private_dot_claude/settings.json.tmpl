@@ -77,7 +77,8 @@
     "frontend-design@claude-plugins-official": true,
     "oh-my-claudecode@omc": true,
     "typescript-lsp@claude-plugins-official": true,
-    "gopls-lsp@claude-plugins-official": true
+    "gopls-lsp@claude-plugins-official": true,
+    "codex@openai-codex": true
   },
   "extraKnownMarketplaces": {
     "omc": {
@@ -86,18 +87,25 @@
         "url": "https://github.com/Yeachan-Heo/oh-my-claudecode.git"
       },
       "autoUpdate": true
-    }
-  },
-  "effortLevel": "high",
-  "modelSettings": {
-    "claude-fable-5": {
-      "effortLevel": "high"
     },
-    "claude-opus-5": {
-      "effortLevel": "high"
+    "openai-codex": {
+      "source": {
+        "source": "github",
+        "repo": "openai/codex-plugin-cc"
+      }
     }
   },
   "outputStyle": "Concise",
+  "effortLevel": "high",
+  "modelSettings": {
+    "claude-fable-5": {
+      "effortLevel": "medium"
+    },
+    "claude-opus-5": {
+      "effortLevel": "low"
+    }
+  },
+  "advisorModel": "fable",
   "showClearContextOnPlanAccept": true,
   "tui": "fullscreen",
   "theme": "dark",
