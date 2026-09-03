@@ -51,12 +51,8 @@
       "Edit(~/.claude/plans/**)",
       "Edit({{ includeTemplate "machine-sync-dir" . }}/claude/plans/**)"
 {{- end }}
-    ],
-    "deny": [
-      "Read(~/.config/rdx/secrets.zsh)",
-      "Read(~/.config/rdx/env.zsh)"
-    ],
-{{- if and .radixils (eq .chezmoi.os "darwin") }}
+    ]
+{{- if and .radixils (eq .chezmoi.os "darwin") }},
     "additionalDirectories": [
       "{{ includeTemplate "machine-sync-dir" . }}/claude/plans"
     ]
@@ -102,7 +98,10 @@
       "effortLevel": "medium"
     },
     "claude-opus-5": {
-      "effortLevel": "low"
+      "effortLevel": "medium"
+    },
+    "claude-fable-5-1": {
+      "effortLevel": "high"
     }
   },
   "advisorModel": "fable",
