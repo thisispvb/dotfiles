@@ -15,6 +15,8 @@
   absolute paths only — no ~ expansion — and the allow rules below need BOTH the
   symlink path and its resolved target, because path rules are matched against each.
   Scoped to claude/plans, never the OneDrive root: the rest of it is company files.
+  The scratchpad grant is the ROOT, not the leaf: the leaf carries a per-session UUID,
+  so a leaf grant can never match the next session and the prompt would return forever.
 */}}
     "allow": [
       "Read",
@@ -46,17 +48,20 @@
       "Bash(git remote *)",
       "Bash(git tag *)",
       "Bash(* --version)",
-      "Bash(* --help)"
+      "Bash(* --help)",
+      "Write(//{{ if eq .chezmoi.os "darwin" }}private/{{ end }}tmp/claude-{{ .chezmoi.uid }}/**)",
+      "Edit(//{{ if eq .chezmoi.os "darwin" }}private/{{ end }}tmp/claude-{{ .chezmoi.uid }}/**)"
 {{- if and .radixils (eq .chezmoi.os "darwin") }},
       "Edit(~/.claude/plans/**)",
       "Edit({{ includeTemplate "machine-sync-dir" . }}/claude/plans/**)"
 {{- end }}
-    ]
-{{- if and .radixils (eq .chezmoi.os "darwin") }},
+    ],
     "additionalDirectories": [
+      "{{ if eq .chezmoi.os "darwin" }}/private{{ end }}/tmp/claude-{{ .chezmoi.uid }}"
+{{- if and .radixils (eq .chezmoi.os "darwin") }},
       "{{ includeTemplate "machine-sync-dir" . }}/claude/plans"
-    ]
 {{- end }}
+    ]
   },
   "model": "opus[1m]",
   "statusLine": {
