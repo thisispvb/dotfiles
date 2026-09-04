@@ -10,13 +10,21 @@
   "includeCoAuthoredBy": false,
   "permissions": {
 {{- /*
-  ~/.claude/plans is a symlink into OneDrive (see docs/new-machine.md), which puts
-  every plan-mode write outside the working directory. additionalDirectories takes
-  absolute paths only — no ~ expansion — and the allow rules below need BOTH the
-  symlink path and its resolved target, because path rules are matched against each.
+  ~/.claude/plans is a symlink into OneDrive (see docs/new-machine.md), which puts every
+  plan-mode write outside the working directory. The allow rules need BOTH the symlink
+  path and its resolved target, because path rules are matched against each.
   Scoped to claude/plans, never the OneDrive root: the rest of it is company files.
-  The scratchpad grant is the ROOT, not the leaf: the leaf carries a per-session UUID,
-  so a leaf grant can never match the next session and the prompt would return forever.
+
+  Path-rule syntax is gitignore-style, so the leading marker matters: "~/..." is
+  home-relative, "//..." is filesystem-absolute, and a SINGLE leading slash would mean
+  "relative to this settings file's directory". Prefer "~/" for anything under $HOME.
+  additionalDirectories accepts the same "~/" form.
+
+  The scratchpad lives under the OS temp root, not ~/.claude: Claude Code builds it as
+  <CLAUDE_CODE_TMPDIR or /tmp>/claude-$UID/<project>/<session-uuid>/scratchpad, and on
+  macOS /tmp resolves to /private/tmp. It cannot be written as "~/", and the grant is
+  the per-uid ROOT, not the leaf: the leaf carries a per-session UUID, so a leaf grant
+  can never match the next session and the prompt would return forever.
 */}}
     "allow": [
       "Read",
@@ -49,17 +57,16 @@
       "Bash(git tag *)",
       "Bash(* --version)",
       "Bash(* --help)",
-      "Write(//{{ if eq .chezmoi.os "darwin" }}private/{{ end }}tmp/claude-{{ .chezmoi.uid }}/**)",
       "Edit(//{{ if eq .chezmoi.os "darwin" }}private/{{ end }}tmp/claude-{{ .chezmoi.uid }}/**)"
 {{- if and .radixils (eq .chezmoi.os "darwin") }},
       "Edit(~/.claude/plans/**)",
-      "Edit({{ includeTemplate "machine-sync-dir" . }}/claude/plans/**)"
+      "Edit(~/{{ .machineSync.onedriveRelDir }}/{{ .machineSync.syncRelDir }}/claude/plans/**)"
 {{- end }}
     ],
     "additionalDirectories": [
       "{{ if eq .chezmoi.os "darwin" }}/private{{ end }}/tmp/claude-{{ .chezmoi.uid }}"
 {{- if and .radixils (eq .chezmoi.os "darwin") }},
-      "{{ includeTemplate "machine-sync-dir" . }}/claude/plans"
+      "~/{{ .machineSync.onedriveRelDir }}/{{ .machineSync.syncRelDir }}/claude/plans"
 {{- end }}
     ]
   },
