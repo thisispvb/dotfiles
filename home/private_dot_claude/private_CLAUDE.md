@@ -89,7 +89,8 @@ Say "setup omc" or run `/oh-my-claudecode:omc-setup`.
 ### File Edits
 The number of tokens used to edit files is best minimized, all else being equal. Therefore, when it will not affect the end result, try to surgically edit a file rather than rewrite the entire thing.
 
-### Responses
+### Output
+- Remove all mannered prose.
 - Don't echo back file contents you just read — the user can see them.
 - Don't narrate tool calls ("Let me read the file..." / "Now I'll edit..."). Just do it.
 - Keep explanations proportional to complexity. Simple changes need one sentence, not three paragraphs.
