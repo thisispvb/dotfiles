@@ -1,0 +1,39 @@
+# Fast local gates (lefthook: single binary, no Python). Install once per clone:
+#   lefthook install
+pre-commit:
+  parallel: true
+  jobs:
+    - name: shellcheck
+      glob: "{bin/*,install.sh}"
+      run: shellcheck {staged_files}
+    - name: shfmt
+      glob: "{bin/*,install.sh}"
+      run: shfmt -d -i 2 -ci {staged_files}
+    - name: plutil
+      glob: "*.plist"
+      run: plutil -lint -s {staged_files}
+    - name: gitleaks
+      run: gitleaks git --staged --no-banner --redact
+    # Settings must work for any account: use ~ / $HOME / .chezmoi.homeDir.
+    - name: no-hardcoded-home
+      exclude: "home/dot_p10k.zsh"
+      run: >-
+        ! grep -nE '/Users/[A-Za-z]|(^|[[:space:]"=:])/home/[a-z]' {staged_files}
+    # The repo is public: no emails, AWS account IDs, 1Password paths or internal
+    # hosts in any file. Excluded files need theirs (git identity, install.sh's
+    # 1Password lookup) or only quote upstream examples (p10k).
+    - name: leak-guard
+      exclude:
+        - "lefthook.yml"
+        - "install.sh"
+        - "home/dot_p10k.zsh"
+        - "home/private_dot_config/git/config.tmpl"
+        - "home/private_dot_config/rdx/gitconfig"
+        - "home/private_dot_local/bin/executable_obsidian-secure-launch.sh"
+        - "**/*.age"
+      run: >-
+        ! grep -nE '[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+\.[A-Za-z.]{2,}|(^|[^0-9])[0-9]{12}([^0-9]|$)|op://|\.rdxils\.com|awsapps\.com'
+        {staged_files} | grep -vE 'git@(gist\.)?github\.com'
+    - name: check
+      glob: "{home/**,bin/check}"
+      run: bin/check

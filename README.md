@@ -1,30 +1,29 @@
 # github.com/thisispvb/dotfiles
 
-Philip's dotfiles, managed with [`chezmoi`](https://github.com/twpayne/chezmoi).
+Philip's macOS dotfiles, managed with [chezmoi](https://www.chezmoi.io/). One
+tree serves personal and work Macs; the machine role picks what each gets.
 
-## New machine: one command
+## New machine
 
     sh -c "$(curl -fsLS https://raw.githubusercontent.com/thisispvb/dotfiles/main/install.sh)"
 
-This bootstraps everything in one go. On a fresh Mac it installs Homebrew
-(which brings the Xcode Command Line Tools) and the 1Password app + CLI, walks
-you through signing in to 1Password and enabling its CLI integration, then
-fetches the age key that encrypts the repo's secrets automatically. It
-installs `chezmoi` if needed, clones this repo, and applies the dotfiles. On
-Linux, or if the 1Password setup is skipped, it prompts you to paste the age
-key instead.
+It asks for the machine role (or reads `MACHINE_ROLE=personal|work`), installs
+Homebrew and 1Password, fetches that role's age key from 1Password (or asks you
+to paste it), then runs `chezmoi init --apply`. See
+[docs/new-machine.md](docs/new-machine.md) for what it doesn't cover.
 
-If `chezmoi` and the age key (`~/.config/chezmoi/key.txt`) are already in
-place, this works too:
+## Day to day
 
-    chezmoi init --apply thisispvb
+```sh
+chezmoi diff && chezmoi apply   # review, then apply
+bin/check                       # lint every template for both roles
+bin/drift                       # what differs on this machine
+bin/bump-versions               # pinned versions vs upstream
+```
 
-## How secrets work
+## Docs
 
-Secrets are age-encrypted directly in this repo and decrypted transparently by
-chezmoi during `apply`/`diff`/`edit`. The only thing a new machine needs is
-the age identity at `~/.config/chezmoi/key.txt`, which the bootstrap above
-restores from 1Password. There is no per-apply `op` dependency.
-
-To change a secret, run `chezmoi edit <file>` — it decrypts to a temp file and
-re-encrypts on save. To add a new secret file, use `chezmoi add --encrypt <file>`.
+- [Architecture](docs/architecture.md): layout, data, scripts, externals
+- [Roles](docs/roles.md): what differs between personal and work
+- [Secrets](docs/secrets.md): per-role age keys, adding and rotating secrets
+- [Tooling](docs/tooling.md): mise, Homebrew, shell, agent shells, checks

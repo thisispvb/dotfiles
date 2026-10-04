@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# One-screen view of how this machine deviates from the dotfiles:
+#   - Homebrew: packages listed but missing, and installed but unlisted
+#   - chezmoi: managed files changed locally or pending (pending scripts hidden)
+# Read-only.
+set -eufo pipefail
+
+brewfile="$(mktemp)"
+trap 'rm -f "$brewfile"' EXIT
+
+# shellcheck disable=SC2016 # template text, not shell
+chezmoi execute-template '
+{{- $p := .packages.darwin -}}
+{{- $taps := $p.taps -}}{{- $brews := $p.brews -}}
+{{- if .radixils }}{{ $taps = concat $taps $p.work.taps }}{{ $brews = concat $brews $p.work.brews }}{{ end -}}
+{{- range ($taps | sortAlpha | uniq) }}tap "{{ . }}"
+{{ end -}}
+{{- range ($brews | sortAlpha | uniq) }}brew "{{ . }}"
+{{ end -}}
+{{- range (concat $p.fontCasks $p.casks | sortAlpha | uniq) }}cask "{{ . }}"
+{{ end -}}
+{{- range $name, $id := $p.mas }}mas "{{ $name }}", id: {{ $id }}
+{{ end -}}' >"$brewfile"
+
+rdx_brewfile="$HOME/git/rdx/rdx/Brewfile"
+if [ "$(chezmoi execute-template '{{ .radixils }}')" = true ] && [ -f "$rdx_brewfile" ]; then
+  grep -E '^(tap|brew|cask) ' "$rdx_brewfile" >>"$brewfile"
+fi
+
+echo "==> Homebrew: listed but missing"
+brew bundle check --no-upgrade --verbose --file="$brewfile" 2>&1 | grep -v "dependencies are satisfied" || true
+
+echo "==> Homebrew: installed but not listed (brew bundle cleanup would remove)"
+brew bundle cleanup --file="$brewfile" 2>/dev/null | grep -vE '^(Would|Run `brew bundle cleanup)' || true
+
+echo "==> chezmoi: managed files that differ (scripts hidden)"
+chezmoi status | grep -v '^ R' || echo "   none"

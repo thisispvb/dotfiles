@@ -1,8 +1,9 @@
 # Setting up a new work Mac
 
 `install.sh` (see the README) gets the dotfiles, packages, and shell onto a new
-machine. This file covers what it *doesn't* — the gaps hit while migrating in
-August 2026. Where a gap is scriptable, fix it upstream in the owning repo's
+machine: it picks the role, restores that role's age key from 1Password, and
+only then runs `chezmoi init --apply`. This file covers what it *doesn't*, the
+gaps hit while migrating in August 2026. Where a gap is scriptable, fix it upstream in the owning repo's
 Taskfile and replace the entry here with a link.
 
 ## 1. Machine state that no repo holds
@@ -23,12 +24,16 @@ only on the machine that made them, as do repo-local `.env*` files and
 1. Sign in to OneDrive, then right-click `MachineSync/` → **Always Keep on This
    Device**. Without the pin, macOS can evict the contents and `~/.claude/plans`
    points at dataless files.
-2. `chezmoi init --apply thisispvb` (or `chezmoi update`).
+2. Run `install.sh` with `MACHINE_ROLE=work` (see the README). It restores the work
+   age key *before* `chezmoi init --apply`; running `chezmoi init --apply`
+   without the key fails on the first encrypted file.
 3. Clone the repos under `~/git/rdx`, then `machine-state-restore.sh <old-hostname>`.
 4. `direnv allow` in each restored repo; restart Claude Code so it re-reads
    `~/.claude.json`.
 
-The backup is additive and per-hostname, so restoring never races the daily
+Secrets (`~/.claude.json`, repo `.env*`/`.envrc`) travel as one age-encrypted
+`secrets.tar.age`, never as plaintext in OneDrive. Restoring needs the work age
+key, which step 2 put in place. The backup is additive and per-hostname, so restoring never races the daily
 launchd agent (`com.pvb.machine-state-backup`, 13:30, logs to
 `~/Library/Logs/machine-state-backup.log`).
 
@@ -45,9 +50,8 @@ an in-flight session is not portable.
 
 ## 2. Tailscale / headscale
 
-1. Register the machine, then authorize it at
-   <https://headscale.mgmt.rdxils.com/admin/machines>. This can be done from any
-   already-authorized machine.
+1. Register the machine, then authorize it in the headscale admin UI (the URL is
+   in the team's internal docs). Any already-authorized machine can do this.
 2. **Accept subnet routes** — in the macOS Tailscale client this is the "Use
    Tailscale subnets" setting. Without it Keycloak and the other internal
    services are unreachable *while connected to Tailscale*, which reads like a
@@ -75,17 +79,16 @@ Some environment keys are not covered by setup and have to be pulled from
 
 | Key | Where it lives | Symptom when missing |
 | --- | --- | --- |
-| `BROKER_ENCRYPTION_KEY` | 1Password, RDX vault | Broker credential writes 500 locally |
-| HSBCBM signing keypair | 1Password, RDX vault | SWIFT pre-validation 502s at the wire |
+| `BROKER_ENCRYPTION_KEY` | 1Password, team vault | Broker credential writes 500 locally |
+| Bank signing keypair | 1Password, team vault | SWIFT pre-validation 502s at the wire |
 
 `.envrc` and the app `.env*` files are not produced by `task setup` either —
 they come from the state restore in §1, and need `direnv allow` afterwards.
 
 ## 4. `rdx-cloudformation`
 
-`task setup` fails against the decommissioned ext cluster until
-<https://github.com/RadixILS-Dev/rdx-cloudformation/pull/128> merges. Delete this
-section once it does.
+`task setup` fails against the decommissioned ext cluster until the pending
+fix in that repo merges (see its open PRs). Delete this section once it does.
 
 ## 5. Last pass
 

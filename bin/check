@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+# Renders every template for each machine role and lints the result. Fast,
+# offline-safe (apart from gitHubKeys), and never decrypts anything: templates
+# that pipe through `decrypt` are skipped. Run before committing; CI runs it too.
+#
+#   bin/check [personal|work ...]    # default: both roles
+set -eufo pipefail
+
+root="$(cd "$(dirname "$0")/.." && pwd)"
+src="$root/home"
+roles=("$@")
+[ ${#roles[@]} -gt 0 ] || roles=(personal work)
+
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+failures=0
+fail() {
+  echo "FAIL: $*" >&2
+  failures=$((failures + 1))
+}
+
+# Tracked and new files only, so agent runtime dirs (.omc/) never count.
+files() { git -C "$root" ls-files --cached --others --exclude-standard -- "$@"; }
+
+# Static files first: they don't depend on the role.
+echo "==> static files"
+scripts=()
+while IFS= read -r f; do
+  [ -f "$root/$f" ] && scripts+=("$root/$f")
+done < <(files bin install.sh)
+shellcheck "${scripts[@]}" || fail "shellcheck bin/ install.sh"
+shfmt -d -i 2 -ci "${scripts[@]}" || fail "shfmt (run: shfmt -w -i 2 -ci bin/* install.sh)"
+while IFS= read -r f; do
+  plutil -lint -s "$f" || fail "plutil $f"
+done < <(find "$src" -name '*.plist' -not -name '*.tmpl')
+
+for role in "${roles[@]}"; do
+  echo "==> role: $role"
+  out="$tmp/$role"
+  mkdir -p "$out"
+  config="$tmp/$role.toml"
+  # --config to a missing file: promptChoiceOnce must not reuse this
+  # machine's answers. Prompt flags match on the prompt text, not the key.
+  if ! chezmoi execute-template --source "$root" --config "$tmp/none.toml" --init \
+    --promptChoice "Machine role=$role" \
+    --promptBool "Manage Homebrew from this account (only one account per machine should)=true" \
+    <"$src/.chezmoi.toml.tmpl" >"$config"; then
+    fail "$role: .chezmoi.toml.tmpl"
+    continue
+  fi
+  cz=(chezmoi --source "$root" --config "$config")
+
+  while IFS= read -r tmpl; do
+    [ -f "$tmpl" ] || continue
+    rel="${tmpl#"$src"/}"
+    case "$rel" in .chezmoi.toml.tmpl) continue ;; esac
+    if grep -q '| decrypt' "$tmpl"; then
+      continue
+    fi
+    rendered="$out/${rel//\//__}"
+    if ! "${cz[@]}" execute-template <"$tmpl" >"$rendered" 2>"$rendered.err"; then
+      fail "$role: render $rel: $(head -1 "$rendered.err")"
+      continue
+    fi
+    grep -q "[^[:space:]]" "$rendered" || continue # gated off for this role
+    case "$rel" in
+      */modify_*.tmpl | *.sh.tmpl)
+        shellcheck -e SC2086 "$rendered" || fail "$role: shellcheck $rel"
+        ;;
+      *.json.tmpl) jq empty "$rendered" || fail "$role: jq $rel" ;;
+      *.plist.tmpl) plutil -lint -s "$rendered" || fail "$role: plutil $rel" ;;
+      *zshrc.tmpl | *zprofile.tmpl | *zshenv.tmpl) zsh -n "$rendered" || fail "$role: zsh -n $rel" ;;
+      *.toml.tmpl) yq -p toml -o json "$rendered" >/dev/null || fail "$role: toml $rel" ;;
+    esac
+  done < <(
+    files home | grep -E '\.tmpl$' | grep -v '/\.chezmoitemplates/' | sed "s|^home/|$src/|"
+    printf '%s\n' "$src/.chezmoiignore" "$src/.chezmoiremove" "$src/.chezmoiexternal.toml"
+  )
+
+  # modify_ scripts must produce valid output from an empty and a minimal file.
+  modify="$out/settings.sh"
+  "${cz[@]}" execute-template <"$src/private_dot_claude/modify_settings.json.tmpl" >"$modify"
+  sh "$modify" </dev/null | jq empty || fail "$role: modify_settings.json on empty input"
+  sh "$src/private_dot_config/colima/default/modify_colima.yaml" </dev/null | yq -e '.cpu' >/dev/null ||
+    fail "$role: modify_colima.yaml on empty input"
+done
+
+if [ "$failures" -gt 0 ]; then
+  echo "$failures check(s) failed" >&2
+  exit 1
+fi
+echo "All checks passed."
