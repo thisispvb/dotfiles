@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-A personal dotfiles repository managed with [chezmoi](https://www.chezmoi.io/) (v2.15.1+). It provisions macOS (primary) and Linux machines with shell config, packages, git settings, SSH keys, and application preferences. Secrets are age-encrypted in-repo via chezmoi's built-in encryption.
+A personal dotfiles repository managed with [chezmoi](https://www.chezmoi.io/) (v2.73.0+). It provisions macOS (primary) and Linux machines with shell config, packages, git settings, SSH keys, and application preferences. Secrets are age-encrypted in-repo via chezmoi's built-in encryption.
 
 ## Key Commands
 

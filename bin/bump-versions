@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Prints each pin in home/.chezmoidata/versions.yaml next to the latest upstream
+# release. Read-only: edit versions.yaml by hand, then `chezmoi apply`.
+set -eufo pipefail
+
+root="$(cd "$(dirname "$0")/.." && pwd)"
+versions="$root/home/.chezmoidata/versions.yaml"
+rdx_pkg="${RDX_WEB_PACKAGE_JSON:-$HOME/git/rdx/rdx/web/package.json}"
+
+pin() { yq -r ".versions.$1" "$versions"; }
+latest_tag() {
+  local tag
+  # gh prints the 404 body on stdout, so only trust the output on success.
+  if tag="$(gh api "repos/$1/releases/latest" --jq .tag_name 2>/dev/null)"; then
+    echo "$tag"
+  else
+    gh api "repos/$1/tags" --jq '.[0].name'
+  fi
+}
+
+row() { printf '%-22s %-44s %s\n' "$1" "$2" "$3"; }
+
+row KEY PINNED LATEST
+row ohmyzsh "$(pin ohmyzsh)" "$(gh api repos/ohmyzsh/ohmyzsh/commits/master --jq .sha)"
+row powerlevel10k "$(pin powerlevel10k)" "$(latest_tag romkatv/powerlevel10k)"
+row zshAutosuggestions "$(pin zshAutosuggestions)" "$(latest_tag zsh-users/zsh-autosuggestions)"
+row zshSyntaxHighlighting "$(pin zshSyntaxHighlighting)" "$(latest_tag zsh-users/zsh-syntax-highlighting)"
+
+node_major="$(pin node | cut -d. -f1)"
+row node "$(pin node)" "$(curl -fsSL https://nodejs.org/dist/index.json |
+  jq -r --arg m "v$node_major." '[.[] | select(.version | startswith($m))][0].version | ltrimstr("v")') (latest $node_major.x)"
+row pnpm "$(pin pnpm)" "$(latest_tag pnpm/pnpm)"
+row python "$(pin python)" "$(curl -fsSL https://endoflife.date/api/python.json | jq -r '.[0].latest')"
+
+if [ -f "$rdx_pkg" ]; then
+  row rdx.node "$(pin rdx.node)" "$(jq -r .devEngines.runtime.version "$rdx_pkg") (rdx web/package.json)"
+  row rdx.pnpm "$(pin rdx.pnpm)" "$(jq -r .devEngines.packageManager.version "$rdx_pkg") (rdx web/package.json)"
+fi
+row chezmoi "$(cat "$root/home/.chezmoiversion")" "$(latest_tag twpayne/chezmoi)"

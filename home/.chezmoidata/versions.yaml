@@ -1,8 +1,19 @@
+# Single source of truth for pinned versions. `bin/bump-versions` prints each
+# key next to its latest upstream release.
 versions:
-  node: "26.5.0"
-  # npm bundled with the pinned Node — see https://nodejs.org/dist/index.json.
-  # Bump together with `node`.
-  npm: "11.17.0"
-  pnpm: "11.15.1"
-  powerlevel10k: "1.16.1"
-  age: "1.2.1"
+  # oh-my-zsh has no releases; pin a commit SHA on master.
+  ohmyzsh: "4d4cfc287e9d887b81242c0e431b5f49f9cec5c1"
+  powerlevel10k: "1.20.0"
+  zshAutosuggestions: "0.7.1"
+  zshSyntaxHighlighting: "0.8.0"
+  # Global mise toolchain (~/.config/mise/config.toml). Personal machines take
+  # the latest; work machines follow rdx's pins in `rdx` below.
+  node: "26.10.0"
+  npm: "11.19.1" # removed with the pnpm-node script in the mise switch
+  pnpm: "11.28.4"
+  python: "3.14"
+  # Work machines: match rdx/web/package.json#devEngines so every worktree's
+  # `pnpm install` reuses the already-installed runtime.
+  rdx:
+    node: "26.7.0"
+    pnpm: "11.22.0"
