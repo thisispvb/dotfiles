@@ -9,7 +9,6 @@ versions:
   # Global mise toolchain (~/.config/mise/config.toml). Personal machines take
   # the latest; work machines follow rdx's pins in `rdx` below.
   node: "26.10.0"
-  npm: "11.19.1" # removed with the pnpm-node script in the mise switch
   pnpm: "11.28.4"
   python: "3.14"
   # Work machines: match rdx/web/package.json#devEngines so every worktree's
@@ -17,3 +16,5 @@ versions:
   rdx:
     node: "26.7.0"
     pnpm: "11.22.0"
+    # rdx go.mod `go` directive; mise resolves the latest patch.
+    go: "1.26"

@@ -1,36 +1,37 @@
-{{- if (eq .chezmoi.os "darwin") -}}
+{{- if and .manageBrew (eq .chezmoi.os "darwin") -}}
 #!/usr/bin/env bash
 
 set -eufo pipefail
 
-echo "📦 Installing general packages"
-
 {{ template "brew-cask-opts" . }}
 
-{{ if .manageBrew -}}
+brewfile="$(mktemp)"
+trap 'rm -f "$brewfile"' EXIT
+
 {{ range (.packages.darwin.taps | sortAlpha | uniq) -}}
 brew trust --tap "{{ . }}"
 {{ end -}}
-brew bundle --no-upgrade --file=/dev/stdin <<EOF
+cat >"$brewfile" <<BREWFILE
 {{ range (.packages.darwin.taps | sortAlpha | uniq) -}}
 tap "{{ . }}"
 {{ end -}}
 {{ range (.packages.darwin.brews | sortAlpha | uniq) -}}
 brew "{{ . }}"
 {{ end -}}
-EOF
-{{ end -}}
-
-{{ $casks := concat .packages.darwin.fontCasks .packages.darwin.casks -}}
-brew bundle --no-upgrade --file=/dev/stdin <<EOF
-{{ range ($casks | sortAlpha | uniq) -}}
+{{ range (concat .packages.darwin.fontCasks .packages.darwin.casks | sortAlpha | uniq) -}}
 cask "{{ . }}"
 {{ end -}}
-
-{{ if .manageBrew -}}
 {{ range $name, $id := .packages.darwin.mas -}}
 mas "{{ $name }}", id: {{ $id }}
 {{ end -}}
+BREWFILE
+
+# `check` is a fast no-op when everything is already installed.
+if brew bundle check --no-upgrade --file="$brewfile" >/dev/null; then
+  echo "📦 General packages up to date"
+else
+  echo "📦 Installing general packages"
+  brew bundle --no-upgrade --file="$brewfile"
+fi
 {{ end -}}
-EOF
-{{ end -}}
+{{/* vim: set filetype=sh: */}}

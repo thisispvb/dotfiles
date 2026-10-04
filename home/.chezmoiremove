@@ -3,3 +3,6 @@
 .config/git/radixils
 .wgetrc
 .screenrc
+.asdf
+.tool-versions
+.config/husky

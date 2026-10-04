@@ -2,7 +2,6 @@ packages:
   darwin:
     taps: []
     brews:
-      - asdf
       - bat
       - beads
       - coreutils
@@ -25,6 +24,7 @@ packages:
       - imagemagick
       - jq
       - lazygit
+      - mise
       - libmagic
       - moreutils
       - openjdk

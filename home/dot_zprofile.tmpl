@@ -22,7 +22,7 @@ export HOMEBREW_CELLAR="{{ $brewPrefix }}/Cellar"
 export HOMEBREW_REPOSITORY="{{ if eq $brewPrefix "/usr/local" }}/usr/local/Homebrew{{ else }}{{ $brewPrefix }}{{ end }}"
 fpath[1,0]="$HOMEBREW_PREFIX/share/zsh/site-functions"
 export FPATH
-export PATH="$HOMEBREW_PREFIX/bin:$HOMEBREW_PREFIX/sbin${PATH+:$PATH}"
+path=($HOMEBREW_PREFIX/bin $HOMEBREW_PREFIX/sbin $path)
 [ -z "${MANPATH-}" ] || export MANPATH=":${MANPATH#:}"
 export INFOPATH="$HOMEBREW_PREFIX/share/info:${INFOPATH:-}"
 {{   end -}}
@@ -30,20 +30,13 @@ export INFOPATH="$HOMEBREW_PREFIX/share/info:${INFOPATH:-}"
 
 # go
 export GOPATH=$HOME/go
-export PATH="$PATH:${GOPATH}/bin"
+path+=($GOPATH/bin)
 
-# asdf (and autocompletions)
-export ASDF_DATA_DIR="$HOME/.asdf"
-export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
-fpath=(${ASDF_DATA_DIR:-$HOME/.asdf}/completions $fpath)
-
-# pnpm — $PNPM_HOME holds the pnpm CLI; $PNPM_HOME/bin holds globally
-# installed binaries and the pnpm-managed Node (pnpm v11 layout).
+# pnpm — $PNPM_HOME/bin holds `pnpm add -g` binaries (pnpm v11 layout). The
+# pnpm CLI itself comes from mise.
 export PNPM_HOME="$HOME/.local/share/pnpm"
-for _pnpm_dir in "$PNPM_HOME/bin" "$PNPM_HOME"; do
-  case ":$PATH:" in
-    *":$_pnpm_dir:"*) ;;
-    *) export PATH="$_pnpm_dir:$PATH" ;;
-  esac
-done
-unset _pnpm_dir
+path=($PNPM_HOME/bin $path)
+
+# mise shims ahead of Homebrew. zshenv adds them too, but macOS path_helper
+# (/etc/zprofile) moves them behind /usr/bin in login shells.
+path=($HOME/.local/share/mise/shims $path)

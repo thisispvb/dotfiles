@@ -1,0 +1,18 @@
+# Global toolchain. Rendered from .chezmoidata/versions.yaml; installed by
+# run_onchange_after_10-mise.sh on `chezmoi apply`. Per-project pins
+# (.mise.toml, .node-version, .nvmrc) override these.
+[tools]
+{{- if .radixils }}
+node = "{{ .versions.rdx.node }}"
+pnpm = "{{ .versions.rdx.pnpm }}"
+go = "{{ .versions.rdx.go }}"
+{{- else }}
+node = "{{ .versions.node }}"
+pnpm = "{{ .versions.pnpm }}"
+{{- end }}
+python = "{{ .versions.python }}"
+
+[settings]
+experimental = false
+idiomatic_version_file_enable_tools = ["node"]
+{{/* vim: set filetype=toml: */}}

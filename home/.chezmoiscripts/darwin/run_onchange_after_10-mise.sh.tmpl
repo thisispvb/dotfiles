@@ -1,0 +1,27 @@
+{{- if (eq .chezmoi.os "darwin") -}}
+#!/usr/bin/env bash
+
+# Installs the global mise toolchain. Re-runs only when the rendered config
+# changes:
+# config: {{ include "private_dot_config/mise/config.toml.tmpl" | sha256sum }}
+# versions: {{ .versions | toJson | sha256sum }} role: {{ .machineRole }}
+
+set -eufo pipefail
+
+if ! command -v mise >/dev/null 2>&1; then
+  echo "⚠️  mise is not installed — install it with brew (manageBrew account), then re-run chezmoi apply" >&2
+  exit 1
+fi
+
+echo "📦 Installing the mise toolchain"
+mise install --yes
+mise reshim
+
+# One-time cleanup of the previous toolchains. Each step is a no-op once done.
+# The pnpm-managed runtime (self-contained pnpm CLI + `pnpm runtime` Node + npm)
+# would shadow the mise shims; the content-addressed store stays.
+pnpm_home="$HOME/.local/share/pnpm"
+rm -f "$pnpm_home/pnpm" "$pnpm_home/bin/node" "$pnpm_home/bin/npm" "$pnpm_home/bin/npx"
+rm -rf "$pnpm_home/dist" "$pnpm_home/global"
+{{ end -}}
+{{/* vim: set filetype=sh: */}}

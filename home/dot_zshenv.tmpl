@@ -1,0 +1,9 @@
+# Sourced by every zsh, including non-interactive agent shells (`zsh -c`,
+# Claude Code, Codex). Keep it tiny: no subprocesses, no output.
+
+# -U dedupes only on array assignment, so edit `path`, never `PATH=`.
+typeset -U path fpath
+
+# mise shims give pinned tools without the per-prompt activate hook.
+path=($HOME/.local/share/mise/shims(N-/) $path)
+{{/* vim: set filetype=zsh: */}}

@@ -73,6 +73,10 @@ plugins=(history
 
 source $ZSH/oh-my-zsh.sh
 
+# Tools come from the mise shims on PATH (~/.zshenv), which resolve per-project
+# pins on every call. `mise activate` is deliberately skipped: it costs ~40 ms
+# per shell start, and per-directory env vars are direnv's job.
+
 # User configuration
 
 setopt histignorespace
