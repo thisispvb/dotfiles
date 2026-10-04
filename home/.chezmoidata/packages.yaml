@@ -1,9 +1,7 @@
 packages:
   darwin:
-    taps:
-      - bramstein/webfonttools
+    taps: []
     brews:
-      - ack
       - asdf
       - bat
       - beads
@@ -11,11 +9,14 @@ packages:
       - curl
       - direnv
       - eza
+      - fd
       - ffmpeg
       - findutils
+      - fzf
       - gh
       - git
       - git-lfs
+      - gitleaks
       - gnu-sed
       - gnu-units
       - gnupg
@@ -29,10 +30,10 @@ packages:
       - openjdk
       - pv
       - rename
-      - screen
+      - ripgrep
+      - shellcheck
+      - shfmt
       - sops
-      - speedtest-cli
-      - ssh-copy-id
       - testssl
       - tlrc
       - tmux
@@ -43,6 +44,7 @@ packages:
       - wget
       - yq
       - zopfli
+      - zoxide
       - zsh
     fontCasks:
       - font-meslo-for-powerlevel10k
@@ -53,7 +55,6 @@ packages:
       - betterdisplay
       - coconutbattery
       - codex
-      - docker-desktop
       - firefox
       - google-chrome
       - iterm2
@@ -98,14 +99,12 @@ packages:
         - duckdb
         - fluxcd/tap/flux
         - go
-        - go-task
         - golangci-lint
         - hashicorp/tap/terraform
         - hashicorp/tap/vault
         - janosmiko/tap/lfk
         - k9s
         - kubectl
-        - libpq
         - openssl
         - postgresql
         - pspg
