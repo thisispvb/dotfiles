@@ -6,30 +6,37 @@ export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
 # Avoid errors on `ssh-add -A` for macos >= 12
 export APPLE_SSH_ADD_BEHAVIOR="macos"
 
-# homebrew
+# homebrew — static equivalent of `brew shellenv` (avoids a brew subprocess
+# per shell; `output "brew" "shellenv"` can't be used because brew prints
+# nothing when PATH already starts with its bin dirs)
 {{ if eq .chezmoi.os "darwin" -}}
+{{   $brewPrefix := "" -}}
 {{   if stat "/opt/homebrew/bin/brew" -}}
-fpath+=("$(/opt/homebrew/bin/brew --prefix)/share/zsh/site-functions")
-eval "$(/opt/homebrew/bin/brew shellenv)"
+{{     $brewPrefix = "/opt/homebrew" -}}
 {{   else if stat "/usr/local/bin/brew" -}}
-fpath+=("$(/usr/local/bin/brew --prefix)/share/zsh/site-functions")
-eval "$(/usr/local/bin/brew shellenv)"
+{{     $brewPrefix = "/usr/local" -}}
+{{   end -}}
+{{   if $brewPrefix -}}
+export HOMEBREW_PREFIX="{{ $brewPrefix }}"
+export HOMEBREW_CELLAR="{{ $brewPrefix }}/Cellar"
+export HOMEBREW_REPOSITORY="{{ if eq $brewPrefix "/usr/local" }}/usr/local/Homebrew{{ else }}{{ $brewPrefix }}{{ end }}"
+fpath[1,0]="$HOMEBREW_PREFIX/share/zsh/site-functions"
+export FPATH
+export PATH="$HOMEBREW_PREFIX/bin:$HOMEBREW_PREFIX/sbin${PATH+:$PATH}"
+[ -z "${MANPATH-}" ] || export MANPATH=":${MANPATH#:}"
+export INFOPATH="$HOMEBREW_PREFIX/share/info:${INFOPATH:-}"
 {{   end -}}
 {{ end -}}
 
-# direnv
-which direnv >/dev/null && eval "$(direnv hook zsh)"
-
 # go
 export GOPATH=$HOME/go
-export GOROOT="$(brew --prefix golang)/libexec"
+export GOROOT="$HOMEBREW_PREFIX/opt/go/libexec"
 export PATH="$PATH:${GOPATH}/bin:${GOROOT}/bin"
 
 # asdf (and autocompletions)
 export ASDF_DATA_DIR="$HOME/.asdf"
 export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 fpath=(${ASDF_DATA_DIR:-$HOME/.asdf}/completions $fpath)
-autoload -Uz compinit && compinit -u
 
 # pnpm — $PNPM_HOME holds the pnpm CLI; $PNPM_HOME/bin holds globally
 # installed binaries and the pnpm-managed Node (pnpm v11 layout).
