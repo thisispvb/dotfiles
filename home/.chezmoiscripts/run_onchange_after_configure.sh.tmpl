@@ -103,7 +103,8 @@ pb() { sudo /usr/libexec/PlistBuddy -c "$1" "$spotlight_plist"; }
 if ! pb 'Print :Exclusions' 2>/dev/null | /usr/bin/grep -qxF "    $spotlight_exclude"; then
   pb 'Print :Exclusions' >/dev/null 2>&1 || pb 'Add :Exclusions array' 2>/dev/null || true
   if pb "Add :Exclusions: string $spotlight_exclude" 2>/dev/null; then
-    sudo launchctl kickstart -k system/com.apple.metadata.mds
+    # SIP blocks launchctl kickstart on mds; killing it makes launchd restart it.
+    sudo killall mds 2>/dev/null || true
   else
     echo "⚠️  Could not exclude ~/git from Spotlight: grant the terminal Full Disk Access, or add it in System Settings > Spotlight > Search Privacy" >&2
   fi
