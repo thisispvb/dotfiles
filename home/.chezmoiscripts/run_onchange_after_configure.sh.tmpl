@@ -94,6 +94,21 @@ sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticDownl
 sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall -bool true
 sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate ConfigDataInstall -bool true
 
+# Keep Spotlight out of ~/git: node_modules and build output churn mds/mdworker.
+# Same list as System Settings > Spotlight > Search Privacy. Needs Full Disk
+# Access for the terminal; warn instead of failing without it.
+spotlight_plist=/System/Volumes/Data/.Spotlight-V100/VolumeConfiguration.plist
+spotlight_exclude="$HOME/git"
+pb() { sudo /usr/libexec/PlistBuddy -c "$1" "$spotlight_plist"; }
+if ! pb 'Print :Exclusions' 2>/dev/null | /usr/bin/grep -qxF "    $spotlight_exclude"; then
+  pb 'Print :Exclusions' >/dev/null 2>&1 || pb 'Add :Exclusions array' 2>/dev/null || true
+  if pb "Add :Exclusions: string $spotlight_exclude" 2>/dev/null; then
+    sudo launchctl kickstart -k system/com.apple.metadata.mds
+  else
+    echo "⚠️  Could not exclude ~/git from Spotlight: grant the terminal Full Disk Access, or add it in System Settings > Spotlight > Search Privacy" >&2
+  fi
+fi
+
 # Warn-only: these need a person (recovery key, reboot), not a script.
 if ! /usr/bin/fdesetup status | /usr/bin/grep -q "FileVault is On"; then
   echo "⚠️  FileVault is off: System Settings -> Privacy & Security -> FileVault" >&2
