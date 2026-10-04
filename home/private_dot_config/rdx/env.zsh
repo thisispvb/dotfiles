@@ -1,5 +1,0 @@
-export LDFLAGS="-L$HOMEBREW_PREFIX/opt/openssl/lib"
-export CPPFLAGS="-I$HOMEBREW_PREFIX/opt/openssl/include"
-export AWS_PROFILE="radix"
-export AWS_REGION="us-east-1"
-export GIT_PROJECTS_WORKDIR="$HOME/git/rdx"

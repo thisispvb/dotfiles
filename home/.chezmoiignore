@@ -35,8 +35,15 @@ Documents
 .config/rdx
 {{ end }}
 
-{{ if ne .chezmoi.os "darwin" }}
+{{ if not .radixils }}
+.config/direnv
+git/rdx
+{{ end }}
+
+# Personal-only: Obsidian vault tooling.
+{{ if not .personal }}
 .config/vault-sidecar
+.local/bin/obsidian-secure-launch.sh
 {{ end }}
 
 # Claude Code runtime and ephemeral files

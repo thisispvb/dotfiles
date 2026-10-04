@@ -1,0 +1,3 @@
+# Intentionally empty: ~/.config/direnv/direnvrc injects the work env for every
+# .envrc under ~/git/rdx. This file makes directories without their own .envrc
+# (e.g. ~/git/rdx itself, fresh worktrees) load it too.

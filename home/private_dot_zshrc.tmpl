@@ -96,17 +96,19 @@ export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
 {{- if .radixils }}
-[[ -f ~/.config/rdx/env.zsh ]] && source ~/.config/rdx/env.zsh
-[[ -f ~/.config/rdx/secrets.zsh ]] && source ~/.config/rdx/secrets.zsh
+# Work env and tokens are not exported here: direnv loads them under ~/git/rdx
+# only (~/.config/direnv/direnvrc), so agents started elsewhere don't inherit them.
 
 # Run Claude Code against Fireworks.ai Fire Pass routers for this invocation only.
+# The key is read on demand, in a subshell, so it never lands in this shell's env.
 claude-fw() {
-  if [[ -z "$FIREWORKS_API_KEY" ]]; then
+  local key=${FIREWORKS_API_KEY:-$(source ~/.config/rdx/secrets.zsh 2>/dev/null; print -r -- $FIREWORKS_API_KEY)}
+  if [[ -z "$key" ]]; then
     print -u2 "claude-fw: FIREWORKS_API_KEY is not set"
     return 1
   fi
   ANTHROPIC_BASE_URL="https://api.fireworks.ai/inference" \
-  ANTHROPIC_CUSTOM_HEADERS="X-Fireworks-Api-Key: $FIREWORKS_API_KEY" \
+  ANTHROPIC_CUSTOM_HEADERS="X-Fireworks-Api-Key: $key" \
   ANTHROPIC_MODEL="accounts/fireworks/routers/kimi-k3-fast" \
   ANTHROPIC_DEFAULT_OPUS_MODEL="accounts/fireworks/routers/kimi-k3-fast" \
   ANTHROPIC_DEFAULT_SONNET_MODEL="accounts/fireworks/routers/glm-5p2-fast" \

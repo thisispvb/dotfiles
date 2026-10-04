@@ -1,0 +1,6 @@
+# Work env for every .envrc under ~/git/rdx, including repos whose own .envrc
+# doesn't `source_up`. Keeps AWS settings and tokens out of shells (and the
+# agents they spawn) everywhere else; they unload on `cd` out.
+case "$PWD/" in
+  "$HOME/git/rdx/"*) source_env_if_exists "$HOME/.config/rdx/envrc" ;;
+esac

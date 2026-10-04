@@ -4,10 +4,14 @@
 # Restores what machine-state-backup.sh wrote to OneDrive onto this Mac.
 # Run it once on a new machine, after OneDrive has finished downloading
 # MachineSync/ and after the repos under ~/git/rdx have been cloned.
+# Never overwrites a local file that is newer than the backed-up copy.
 
 set -eufo pipefail
 
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
 machine_sync_dir="{{ includeTemplate "machine-sync-dir" . }}"
+age_identity="{{ .chezmoi.config.age.identity }}"
 backups_dir="$machine_sync_dir/backups"
 repo_root="$HOME/git/rdx"
 
@@ -77,7 +81,7 @@ restore_into() {
     return 0
   fi
   mkdir -p "$dest"
-  rsync -a $dry_run $verbose "$from" "$dest"
+  rsync -a --update $dry_run $verbose "$from" "$dest"
 }
 
 echo "♻️  Restoring machine state from $src"
@@ -92,14 +96,35 @@ restore_into "$src/claude/tasks" "$HOME/.claude/"
 restore_into "$src/claude/jobs" "$HOME/.claude/"
 restore_into "$src/claude/plugins" "$HOME/.claude/"
 restore_into "$src/claude/history.jsonl" "$HOME/.claude/"
-restore_into "$src/claude/.claude.json" "$HOME/"
+
+echo "→ Secrets (~/.claude.json, repo .env*/.envrc)"
+archive="$src/secrets.tar.age"
+if [ ! -f "$archive" ]; then
+  echo "   skip (absent): $archive"
+else
+  secrets_tmp="$(mktemp -d)"
+  trap 'rm -rf "$secrets_tmp"' EXIT
+  age -d -i "$age_identity" "$archive" | tar -xf - -C "$secrets_tmp"
+  restore_into "$secrets_tmp/.claude.json" "$HOME/"
+  if [ -d "$secrets_tmp/git/rdx" ]; then
+    while IFS= read -r repo_path; do
+      repo_name="$(basename "$repo_path")"
+      if [ -d "$repo_root/$repo_name" ]; then
+        rsync -a --update $dry_run $verbose "$repo_path/" "$repo_root/$repo_name/"
+        echo "   restored secrets into $repo_root/$repo_name"
+      else
+        echo "⚠️  $repo_root/$repo_name is not cloned — clone it, then re-run this script" >&2
+      fi
+    done < <(find "$secrets_tmp/git/rdx" -mindepth 1 -maxdepth 1 -type d | sort)
+  fi
+fi
 
 echo "→ Repo-local state"
 if [ -d "$src/repos" ]; then
   while IFS= read -r repo_path; do
     repo_name="$(basename "$repo_path")"
     if [ -d "$repo_root/$repo_name" ]; then
-      rsync -a $dry_run $verbose "$repo_path/" "$repo_root/$repo_name/"
+      rsync -a --update $dry_run $verbose "$repo_path/" "$repo_root/$repo_name/"
       echo "   restored into $repo_root/$repo_name"
     else
       echo "⚠️  $repo_root/$repo_name is not cloned — clone it, then re-run this script" >&2

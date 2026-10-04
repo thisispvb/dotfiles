@@ -1,0 +1,4 @@
+# Public halves of the per-role SSH keys (the private halves are age-encrypted).
+sshPublicKeys:
+  personal: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJZgkl6a3RfizXwdlhPRIeyvoAUoXTCPlQt7QdKIydzA p@bargen.co"
+  work: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILW/UxJ1j4iaO9/UtJEbOBsU1OTQfDqjj6e0XiToFCGq pvb@radixils.com"

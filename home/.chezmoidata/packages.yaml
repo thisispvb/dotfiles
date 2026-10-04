@@ -2,6 +2,7 @@ packages:
   darwin:
     taps: []
     brews:
+      - age
       - bat
       - beads
       - coreutils

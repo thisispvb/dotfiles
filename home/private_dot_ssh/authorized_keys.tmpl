@@ -1,3 +1,8 @@
+{{- if .radixils -}}
+{{/* Work Macs accept only the work key, never every key on the personal GitHub account. */ -}}
+{{ .sshPublicKeys.work }}
+{{ else -}}
 {{ range (gitHubKeys "thisispvb") -}}
 {{   .Key }}
+{{ end -}}
 {{ end -}}

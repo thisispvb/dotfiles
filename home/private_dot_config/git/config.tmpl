@@ -43,7 +43,6 @@
   riom = rebase --interactive origin/main
   rpo = remote prune origin
   s = status -sb
-  ss = commit --message snapshot --no-gpg-sign
   su = submodule update
   wd = diff --patience --word-diff
   whoami = config user.email
@@ -169,9 +168,14 @@
   trustExitCode = true
 {{- end }}
 
-{{- if not (eq .chezmoi.os "windows") }}
-# Include additional configs for specific (sub-)folders
+{{- if .radixils }}
+# Work identity: repos under ~/git/rdx, plus any RadixILS-Dev clone elsewhere
+# (agent worktrees under /tmp or .claude/worktrees).
 [includeIf "gitdir:**/rdx/*/"]
+  path = "~/.config/rdx/gitconfig"
+[includeIf "hasconfig:remote.*.url:git@github.com:RadixILS-Dev/**"]
+  path = "~/.config/rdx/gitconfig"
+[includeIf "hasconfig:remote.*.url:https://github.com/RadixILS-Dev/**"]
   path = "~/.config/rdx/gitconfig"
 {{- end }}
 

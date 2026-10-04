@@ -6,3 +6,4 @@
 .asdf
 .tool-versions
 .config/husky
+.config/rdx/env.zsh
