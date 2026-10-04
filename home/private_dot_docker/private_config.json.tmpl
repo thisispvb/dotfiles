@@ -1,0 +1,4 @@
+{{- if .radixils -}}
+{{- /* The ECR registry host carries the AWS account ID: keep it encrypted. */ -}}
+{{- include ".secrets/work/docker-config.json.age" | decrypt -}}
+{{- end -}}

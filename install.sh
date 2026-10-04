@@ -5,7 +5,12 @@ set -e # -e: exit on error
 # Overridable so the provisioning path can be exercised against a temp file.
 AGE_KEY_FILE="${AGE_KEY_FILE:-$HOME/.config/chezmoi/key.txt}"
 AGE_ACCOUNT="my.1password.eu"
-AGE_ITEM_UUID="jb7rxvjrxlp7kkhiieipzeruvy"
+# One age key per machine role; each lives in its own 1Password item.
+AGE_ITEM_PERSONAL="jb7rxvjrxlp7kkhiieipzeruvy"
+AGE_ITEM_WORK="itclbqchqc6svnpy6rxok2kg6a"
+AGE_ITEM_UUID=""
+MACHINE_ROLE="${MACHINE_ROLE:-}"
+CHEZMOI_CONFIG="$HOME/.config/chezmoi/chezmoi.toml"
 AGE_KEY_ATTACHMENT_NAME="key.txt"
 MAX_KEY_ATTEMPTS=3
 
@@ -67,6 +72,27 @@ print_1password_auth_help() {
   echo "must be enabled (Settings > Developer > Integrate with 1Password CLI)." >&2
   echo "If you use the CLI standalone instead, add the account first:" >&2
   echo "  op account add --address $AGE_ACCOUNT --email p@bargen.co" >&2
+}
+
+# Pick the machine role (personal or work): $MACHINE_ROLE, else the role an
+# earlier `chezmoi init` stored, else ask. The role decides which age key to
+# fetch, and is passed to `chezmoi init` so it isn't asked twice.
+select_role() {
+  if [ -z "$MACHINE_ROLE" ] && [ -f "$CHEZMOI_CONFIG" ]; then
+    MACHINE_ROLE="$(sed -n 's/^[[:space:]]*machineRole[[:space:]]*=[[:space:]]*"\([a-z]*\)".*/\1/p' "$CHEZMOI_CONFIG" | head -n 1)"
+  fi
+  while [ "$MACHINE_ROLE" != personal ] && [ "$MACHINE_ROLE" != work ]; do
+    if ! tty_available; then
+      echo "Set MACHINE_ROLE=personal or MACHINE_ROLE=work and re-run." >&2
+      return 1
+    fi
+    printf 'Machine role (personal/work): ' >/dev/tty
+    IFS= read -r MACHINE_ROLE </dev/tty || MACHINE_ROLE=""
+  done
+  case "$MACHINE_ROLE" in
+    personal) AGE_ITEM_UUID="$AGE_ITEM_PERSONAL" ;;
+    work) AGE_ITEM_UUID="$AGE_ITEM_WORK" ;;
+  esac
 }
 
 # Make Homebrew available on macOS: find an existing install that just isn't
@@ -298,8 +324,8 @@ provision_age_key() {
       return 2
     fi
     echo "" >&2
-    echo "Paste the age secret key from 1Password (input is hidden)." >&2
-    echo "In the 1Password app, open the chezmoi age key item, reveal and copy" >&2
+    echo "Paste the $MACHINE_ROLE age secret key from 1Password (input is hidden)." >&2
+    echo "In the 1Password app, open the $MACHINE_ROLE age key item, reveal and copy" >&2
     echo "the AGE-SECRET-KEY-1... value. Submit an empty line to abort." >&2
     printf 'Age key: ' >/dev/tty
     # Read from /dev/tty so this works even when the script itself is piped via
@@ -323,6 +349,8 @@ provision_age_key() {
 }
 
 main() {
+  select_role || exit 1
+
   if ! ensure_homebrew; then
     echo "Continuing without Homebrew; chezmoi apply may fail until it is installed." >&2
   fi
@@ -383,9 +411,9 @@ main() {
 
     # Local clone: use it as the source directly. curl-piped: clone from GitHub.
     if [ -d "$script_dir/.git" ]; then
-      "$chezmoi" init "--source=$script_dir"
+      "$chezmoi" init "--source=$script_dir" --promptChoice "Machine role=$MACHINE_ROLE"
     else
-      "$chezmoi" init thisispvb
+      "$chezmoi" init thisispvb --promptChoice "Machine role=$MACHINE_ROLE"
     fi
 
     # Exercise decryption + templating through the just-written config.
@@ -393,7 +421,7 @@ main() {
       break
     fi
 
-    echo "The age key could not decrypt this repo's secrets (attempt $attempt of $MAX_KEY_ATTEMPTS)." >&2
+    echo "The $MACHINE_ROLE age key could not decrypt this repo's secrets (attempt $attempt of $MAX_KEY_ATTEMPTS)." >&2
     if [ "$key_existed" = 1 ]; then
       echo "The pre-existing key at $AGE_KEY_FILE is not valid for this repo." >&2
       echo "Restore the correct key from 1Password and re-run this script." >&2

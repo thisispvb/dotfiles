@@ -7,6 +7,13 @@
 {{- $personal := eq $machineRole "personal" -}}
 {{- $radixils := eq $machineRole "work" -}}
 
+{{- /* One age identity per role: a machine holds only its own role's key, so a
+       work Mac cannot decrypt personal secrets and vice versa. Public halves
+       only; the private keys live in 1Password (see docs/secrets.md). */ -}}
+{{- $ageRecipients := dict
+      "personal" "age13zvjqn9umcxl4v35lav9s6tmzg05s537n649z72fj9kqg0kevv9sf8w9pa"
+      "work" "age1p6emp6z0q693u5nvl7ks739f0jv2xw0j8j3gq84yk5r6cpce6sxqlrf49q" -}}
+
 
 encryption = "age"
 [data]
@@ -15,8 +22,11 @@ encryption = "age"
   radixils = {{ $radixils }}
   personal = {{ $personal }}
   hostname = {{ .chezmoi.hostname | quote }}
+[data.ageRecipients]
+  personal = {{ $ageRecipients.personal | quote }}
+  work = {{ $ageRecipients.work | quote }}
 [age]
   identity = "~/.config/chezmoi/key.txt"
-  recipient = "age13zvjqn9umcxl4v35lav9s6tmzg05s537n649z72fj9kqg0kevv9sf8w9pa"
+  recipient = {{ index $ageRecipients $machineRole | quote }}
 [diff]
   exclude = ["externals"]

@@ -1,0 +1,2 @@
+{{- /* Per-role age payload: .secrets/<role>/ is encrypted to that role's key only. */ -}}
+{{- include (printf ".secrets/%s/id_ed25519.age" .machineRole) | decrypt -}}
