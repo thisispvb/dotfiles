@@ -63,6 +63,7 @@
       "Edit(~/{{ .machineSync.onedriveRelDir }}/{{ .machineSync.syncRelDir }}/claude/plans/**)"
 {{- end }}
     ],
+    "defaultMode": "auto",
     "additionalDirectories": [
       "{{ if eq .chezmoi.os "darwin" }}/private{{ end }}/tmp/claude-{{ .chezmoi.uid }}"
 {{- if and .radixils (eq .chezmoi.os "darwin") }},
@@ -109,14 +110,13 @@
     "claude-fable-5": {
       "effortLevel": "medium"
     },
-    "claude-opus-5": {
-      "effortLevel": "high"
-    },
     "claude-fable-5-1": {
+      "effortLevel": "medium"
+    },
+    "claude-opus-5-5": {
       "effortLevel": "medium"
     }
   },
-  "advisorModel": "fable",
   "showClearContextOnPlanAccept": true,
   "tui": "fullscreen",
   "theme": "dark",
