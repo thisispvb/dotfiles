@@ -1,4 +1,3 @@
-{{- if (eq .chezmoi.os "darwin") -}}
 #!/usr/bin/env bash
 
 set -eufo pipefail
@@ -171,4 +170,3 @@ for app in Dock Finder SystemUIServer ControlCenter; do
   killall "$app" 2>/dev/null || true
 done
 
-{{ end -}}

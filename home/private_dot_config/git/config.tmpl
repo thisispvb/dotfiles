@@ -158,7 +158,6 @@
   directory = /opt/homebrew/Library/Taps/hashicorp/homebrew-tap
   directory = /opt/homebrew/Library/Taps/hashicorp/homebrew-tap/.git
 
-{{ if (eq .chezmoi.os "darwin") -}}
 # SourceTree settings
 [difftool "sourcetree"]
   cmd = opendiff \"$LOCAL\" \"$REMOTE\"
@@ -166,7 +165,6 @@
 [mergetool "sourcetree"]
   cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
   trustExitCode = true
-{{- end }}
 
 {{- if .radixils }}
 # Work identity: repos under ~/git/rdx, plus any RadixILS-Dev clone elsewhere

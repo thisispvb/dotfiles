@@ -9,7 +9,6 @@ export APPLE_SSH_ADD_BEHAVIOR="macos"
 # homebrew — static equivalent of `brew shellenv` (avoids a brew subprocess
 # per shell; `output "brew" "shellenv"` can't be used because brew prints
 # nothing when PATH already starts with its bin dirs)
-{{ if eq .chezmoi.os "darwin" -}}
 {{   $brewPrefix := "" -}}
 {{   if stat "/opt/homebrew/bin/brew" -}}
 {{     $brewPrefix = "/opt/homebrew" -}}
@@ -26,7 +25,6 @@ path=($HOMEBREW_PREFIX/bin $HOMEBREW_PREFIX/sbin $path)
 [ -z "${MANPATH-}" ] || export MANPATH=":${MANPATH#:}"
 export INFOPATH="$HOMEBREW_PREFIX/share/info:${INFOPATH:-}"
 {{   end -}}
-{{ end -}}
 
 # go
 export GOPATH=$HOME/go

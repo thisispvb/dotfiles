@@ -1,4 +1,3 @@
-{{- if (eq .chezmoi.os "darwin") -}}
 #!/usr/bin/env bash
 
 # Installs the global mise toolchain. Re-runs only when the rendered config
@@ -27,5 +26,4 @@ for tool in node npm npx; do
   ln -sfn "$shims/$tool" "$pnpm_home/bin/$tool"
 done
 ln -sfn "$shims/pnpm" "$pnpm_home/pnpm"
-{{ end -}}
 {{/* vim: set filetype=sh: */}}

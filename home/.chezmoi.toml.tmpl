@@ -1,13 +1,12 @@
+{{- if ne .chezmoi.os "darwin" -}}
+{{-   fail "These dotfiles support macOS only." -}}
+{{- end -}}
 {{- $machineRole := promptChoiceOnce . "machineRole" "Machine role" (list "personal" "work") -}}
 {{- $manageBrew := promptBoolOnce . "manageBrew" "Manage Homebrew from this account (only one account per machine should)" -}}
 
 {{- $personal := eq $machineRole "personal" -}}
 {{- $radixils := eq $machineRole "work" -}}
 
-{{- $osID := .chezmoi.os -}}
-{{- if hasKey .chezmoi.osRelease "id" -}}
-{{-   $osID = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
-{{- end -}}
 
 encryption = "age"
 [data]
@@ -16,7 +15,6 @@ encryption = "age"
   radixils = {{ $radixils }}
   personal = {{ $personal }}
   hostname = {{ .chezmoi.hostname | quote }}
-  osid = {{ $osID | quote }}
 [age]
   identity = "~/.config/chezmoi/key.txt"
   recipient = "age13zvjqn9umcxl4v35lav9s6tmzg05s537n649z72fj9kqg0kevv9sf8w9pa"

@@ -65,16 +65,16 @@ managed=$(cat <<'MANAGED'
       "Bash(git tag *)",
       "Bash(* --version)",
       "Bash(* --help)",
-      "Edit(//{{ if eq .chezmoi.os "darwin" }}private/{{ end }}tmp/claude-{{ .chezmoi.uid }}/**)"
-{{- if and .radixils (eq .chezmoi.os "darwin") }},
+      "Edit(//private/tmp/claude-{{ .chezmoi.uid }}/**)"
+{{- if .radixils }},
       "Edit(~/.claude/plans/**)",
       "Edit(~/{{ .machineSync.onedriveRelDir }}/{{ .machineSync.syncRelDir }}/claude/plans/**)"
 {{- end }}
     ],
     "defaultMode": "auto",
     "additionalDirectories": [
-      "{{ if eq .chezmoi.os "darwin" }}/private{{ end }}/tmp/claude-{{ .chezmoi.uid }}"
-{{- if and .radixils (eq .chezmoi.os "darwin") }},
+      "/private/tmp/claude-{{ .chezmoi.uid }}"
+{{- if .radixils }},
       "~/{{ .machineSync.onedriveRelDir }}/{{ .machineSync.syncRelDir }}/claude/plans"
 {{- end }}
 {{- if .radixils }},

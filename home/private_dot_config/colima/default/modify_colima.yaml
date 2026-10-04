@@ -1,0 +1,31 @@
+#!/bin/sh
+# chezmoi modify_ script: colima rewrites colima.yaml on every start (comments,
+# new keys), so set only the keys these dotfiles care about and keep the rest.
+# Sized for rdx `task dev:restart` (Postgres, RabbitMQ, Dragonfly) plus k3s.
+# Resizing takes effect on `colima stop && colima start`; arch, runtime,
+# vmType and mountType only apply to a newly created VM.
+set -eu
+
+live=$(cat)
+[ -n "$live" ] || live='{}'
+updated=$(printf '%s\n' "$live" | yq -P '
+  .cpu = 4 |
+  .memory = 8 |
+  .disk = 100 |
+  .arch = "aarch64" |
+  .runtime = "docker" |
+  .vmType = "vz" |
+  .mountType = "virtiofs" |
+  .rosetta = true |
+  .autoActivate = true |
+  .kubernetes.enabled = true |
+  .kubernetes.version = "v1.36.5+k3s1" |
+  .kubernetes.k3sArgs = ["--disable=traefik"]
+')
+
+# Leave colima's own formatting alone when nothing actually changes.
+if [ "$(printf '%s\n' "$live" | yq -o json -I0 'sort_keys(..)')" = "$(printf '%s\n' "$updated" | yq -o json -I0 'sort_keys(..)')" ]; then
+  printf '%s\n' "$live"
+else
+  printf '%s\n' "$updated"
+fi

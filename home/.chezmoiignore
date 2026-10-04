@@ -1,35 +1,6 @@
-# OS-specific ignores
+# oh-my-zsh runtime files inside the exact externals
 .oh-my-zsh/cache/**
 .oh-my-zsh/custom/themes/powerlevel10k/**/*.zwc
-
-{{ if ne .chezmoi.os "linux" }}
-.hushlogin
-.local/share/fonts
-{{ end }}
-
-{{ if ne .chezmoi.os "darwin" }}
-Applications/New VLC Window.app
-{{ end }}
-
-{{ if ne .chezmoi.os "windows" }}
-Documents
-{{ else }}
-.bash_aliases
-.gnupg
-.gnupg/**
-.inputrc
-.oh-my-zsh
-.oh-my-zsh/**
-.p10k.zsh
-.ssh/id_ed25519
-.ssh/id_ed25519.pub
-.tmux.conf
-.vim
-.vim/**
-.vimrc
-.zprofile
-.zshrc
-{{ end }}
 
 {{ if not .radixils }}
 .config/rdx
@@ -70,7 +41,7 @@ git/rdx
 # Machine-state sync (OneDrive). The plans symlink and the backup tooling only
 # belong on a work Mac, and only once the OneDrive client has created its root —
 # without the stat check a fresh machine gets a dangling ~/.claude/plans symlink.
-{{ if or (not .radixils) (ne .chezmoi.os "darwin") }}
+{{ if not .radixils }}
 .claude/plans
 .local/bin/machine-state-backup.sh
 .local/bin/machine-state-restore.sh

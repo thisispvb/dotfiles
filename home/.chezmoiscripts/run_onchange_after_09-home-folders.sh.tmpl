@@ -1,4 +1,3 @@
-{{- if (eq .chezmoi.os "darwin") -}}
 #!/usr/bin/env bash
 
 set -eufo pipefail
@@ -22,4 +21,3 @@ fi
 chmod go-rwx  {{ . }}
 {{ end -}}
 
-{{ end -}}
