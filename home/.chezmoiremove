@@ -12,3 +12,4 @@
 .claude/statusline.sh
 .claude/hooks/rtk-rewrite.sh
 .claude/RTK.md
+.local/rdx/macos-setup.sh

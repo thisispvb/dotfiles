@@ -86,30 +86,26 @@ packages:
       magnet: 441258766
       slack-for-desktop: 803453959
       wireguard: 1451685025
+    # Work machines. Repo-specific tooling (go, uv, duckdb, vault, openssl,
+    # sops, ...) comes from rdx's own Brewfile, which run_onchange_after_15
+    # bundles when ~/git/rdx/rdx is checked out. This list is cross-repo only.
     work:
       taps:
-        - anomalyco/tap
-        - fluxcd/tap
         - hashicorp/tap
         - janosmiko/tap
       brews:
-        - anomalyco/tap/opencode
         - awscli
         - colima
+        - docker
         - docker-buildx
-        - duckdb
-        - fluxcd/tap/flux
-        - go
+        - docker-compose
         - golangci-lint
         - hashicorp/tap/terraform
-        - hashicorp/tap/vault
         - janosmiko/tap/lfk
         - k9s
         - kubectl
-        - openssl
         - postgresql
+        - pre-commit
         - pspg
         - rtk
-        - skaffold
         - stern
-        - uv

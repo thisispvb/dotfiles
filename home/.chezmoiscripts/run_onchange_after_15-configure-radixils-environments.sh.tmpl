@@ -1,23 +1,39 @@
 {{- if .radixils -}}
-{{- if (eq .chezmoi.os "darwin") -}}
+{{- $rdxBrewfile := joinPath .chezmoi.homeDir "git/rdx/rdx/Brewfile" -}}
 #!/usr/bin/env bash
+
+# Work machine setup. Dotfiles own cross-repo tooling; rdx owns its own
+# (Brewfile, `task setup`, DuckDB). Re-runs when either package list changes:
+# rdx Brewfile: {{ if stat $rdxBrewfile }}{{ include $rdxBrewfile | sha256sum }}{{ else }}absent{{ end }}
+# ~/git/rdx/.envrc: {{ include "git/rdx/dot_envrc" | sha256sum }}
 
 set -eufo pipefail
 
 {{ if .manageBrew -}}
-echo "📦 Installing Radix ILS packages"
+brewfile="$(mktemp)"
+trap 'rm -f "$brewfile"' EXIT
 
 {{ range (.packages.darwin.work.taps | sortAlpha | uniq) -}}
 brew trust --tap "{{ . }}"
 {{ end -}}
-brew bundle --no-upgrade --file=/dev/stdin <<EOF
+cat >"$brewfile" <<BREWFILE
 {{ range (.packages.darwin.work.taps | sortAlpha | uniq) -}}
 tap "{{ . }}"
 {{ end -}}
 {{ range (.packages.darwin.work.brews | sortAlpha | uniq) -}}
 brew "{{ . }}"
 {{ end -}}
-EOF
+BREWFILE
+
+for file in "$brewfile" "{{ $rdxBrewfile }}"; do
+  [ -f "$file" ] || continue
+  if brew bundle check --no-upgrade --file="$file" >/dev/null; then
+    echo "📦 Up to date: $file"
+  else
+    echo "📦 Installing: $file"
+    brew bundle --no-upgrade --file="$file"
+  fi
+done
 
 # Install Claude Code via native installer (auto-updates)
 if ! command -v claude &> /dev/null; then
@@ -26,9 +42,9 @@ if ! command -v claude &> /dev/null; then
 fi
 {{ end -}}
 
-echo "📦 Configuring Radix ILS tooling"
-
-duckdb -c "install httpfs; install spatial; install h3 from community"
-
+# ~/git/rdx/.envrc is managed here; trust it so direnv loads the work env.
+if command -v direnv >/dev/null 2>&1 && [ -f "$HOME/git/rdx/.envrc" ]; then
+  direnv allow "$HOME/git/rdx/.envrc"
+fi
 {{ end -}}
-{{ end -}}
+{{/* vim: set filetype=sh: */}}

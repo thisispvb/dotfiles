@@ -6,4 +6,12 @@ typeset -U path fpath
 
 # mise shims give pinned tools without the per-prompt activate hook.
 path=($HOME/.local/share/mise/shims(N-/) $path)
-{{/* vim: set filetype=zsh: */}}
+{{- if .radixils }}
+
+# Shared build caches, so worktrees and agents start warm instead of cold.
+# Turbo's cache keys are content hashes, so sharing across worktrees is safe.
+export TURBO_CACHE_DIR="$HOME/.cache/turbo/rdx"
+export UV_CACHE_DIR="$HOME/.cache/uv"
+export GOMODCACHE="$HOME/go/pkg/mod"
+export GOCACHE="$HOME/Library/Caches/go-build"
+{{- end }}{{/* vim: set filetype=zsh: */}}
