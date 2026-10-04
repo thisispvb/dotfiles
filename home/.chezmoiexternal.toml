@@ -28,3 +28,19 @@
   type = "file"
   url = "https://raw.githubusercontent.com/tallpants/vscode-theme-iterm2/master/vscode.itermcolors"
   refreshPeriod = "168h"
+
+# Agent skills, symlinked into ~/.claude/skills.
+{{- $skills := list
+  (list "vercel-react-best-practices" "vercel-labs/agent-skills" .versions.vercelAgentSkills "skills/react-best-practices")
+  (list "vercel-composition-patterns" "vercel-labs/agent-skills" .versions.vercelAgentSkills "skills/composition-patterns")
+  (list "grill-with-docs" "mattpocock/skills" .versions.mattpocockSkills "skills/engineering/grill-with-docs")
+  (list "improve-codebase-architecture" "mattpocock/skills" .versions.mattpocockSkills "skills/engineering/improve-codebase-architecture") }}
+{{- range $skills }}
+{{- $name := index . 0 }}{{ $repo := index . 1 }}{{ $ref := index . 2 }}{{ $path := index . 3 }}
+[".agents/skills/{{ $name }}"]
+  type = "archive"
+  url = "https://github.com/{{ $repo }}/archive/{{ $ref }}.tar.gz"
+  exact = true
+  stripComponents = {{ add 1 (len (splitList "/" $path)) }}
+  include = ["*/{{ $path }}", "*/{{ $path }}/**"]
+{{- end }}

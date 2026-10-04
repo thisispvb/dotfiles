@@ -7,3 +7,8 @@
 .tool-versions
 .config/husky
 .config/rdx/env.zsh
+.agents/skills/frontend-design
+.claude/skills/frontend-design
+.claude/statusline.sh
+.claude/hooks/rtk-rewrite.sh
+.claude/RTK.md

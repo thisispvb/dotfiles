@@ -1,0 +1,5 @@
+# Agent runtime state (also in the global ignore; repeated so clones on other
+# machines stay clean).
+.omc/
+**/.omc/
+.claude/

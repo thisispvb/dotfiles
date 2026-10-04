@@ -1,3 +1,12 @@
+#!/bin/sh
+# chezmoi modify_ script: Claude Code rewrites ~/.claude/settings.json at runtime
+# (/model, /config, plugin installs). Deep-merge the managed keys below over the
+# live file instead of replacing it, so runtime-only keys survive and
+# `chezmoi status` stays quiet. Managed arrays replace live ones wholesale.
+# Keys listed in del(...) are retired and removed from the live file.
+set -eu
+
+managed=$(cat <<'MANAGED'
 {
   "cleanupPeriodDays": 90,
   "env": {
@@ -7,7 +16,6 @@
     "commit": "",
     "pr": ""
   },
-  "includeCoAuthoredBy": false,
   "permissions": {
 {{- /*
   ~/.claude/plans is a symlink into OneDrive (see docs/new-machine.md), which puts every
@@ -69,6 +77,10 @@
 {{- if and .radixils (eq .chezmoi.os "darwin") }},
       "~/{{ .machineSync.onedriveRelDir }}/{{ .machineSync.syncRelDir }}/claude/plans"
 {{- end }}
+{{- if .radixils }},
+      "~/git/rdx/kubernetes",
+      "~/git/rdx/rdx-agent"
+{{- end }}
     ]
   },
   "model": "opus[1m]",
@@ -127,3 +139,10 @@
     "enabled": false
   }
 }
+MANAGED
+)
+
+live=$(cat)
+[ -n "$live" ] || live='{}'
+printf '%s\n' "$live" | jq --indent 2 --argjson managed "$managed" \
+  'del(.includeCoAuthoredBy) * $managed'
