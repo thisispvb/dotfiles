@@ -36,6 +36,7 @@ packages:
       - pv
       - rename
       - ripgrep
+      - rtk
       - shellcheck
       - shfmt
       - sops
@@ -111,5 +112,4 @@ packages:
         - postgresql
         - pre-commit
         - pspg
-        - rtk
         - stern
