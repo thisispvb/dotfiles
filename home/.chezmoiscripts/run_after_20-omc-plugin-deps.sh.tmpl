@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+# Installs the runtime deps of the newest cached oh-my-claudecode plugin. Each
+# plugin update drops a fresh cache dir without node_modules, and the HUD
+# (~/.claude/hud/omc-hud.mjs) fails with "Cannot find package 'zod'" until they
+# exist. The trigger lives outside chezmoi, so this runs on every apply; it is a
+# no-op once the deps are in place.
+
+set -eufo pipefail
+
+cache="$HOME/.claude/plugins/cache/omc/oh-my-claudecode"
+[ -d "$cache" ] || exit 0
+
+latest="$(find "$cache" -mindepth 1 -maxdepth 1 -type d -name '[0-9]*.[0-9]*.[0-9]*' -exec basename {} \; | sort -V | tail -n 1)"
+[ -n "$latest" ] || exit 0
+dir="$cache/$latest"
+
+[ -f "$dir/package-lock.json" ] && [ -f "$dir/dist/hud/index.js" ] || exit 0
+[ -d "$dir/node_modules/zod" ] && exit 0
+
+if ! command -v npm >/dev/null 2>&1; then
+  echo "⚠️  npm is not on PATH — skipping oh-my-claudecode $latest deps; the HUD stays broken until they are installed" >&2
+  exit 0
+fi
+
+echo "📦 Installing oh-my-claudecode $latest runtime deps"
+(cd "$dir" && npm ci --omit=dev --no-audit --no-fund)
+{{/* vim: set filetype=sh: */}}
