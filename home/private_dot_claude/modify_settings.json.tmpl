@@ -65,10 +65,7 @@ managed=$(cat <<'MANAGED'
       "Bash(git tag *)",
       "Bash(* --version)",
       "Bash(* --help)",
-      "Edit(//private/tmp/claude-{{ .chezmoi.uid }}/**)"
-{{- if .radixils }},
-      "Edit(~/.claude/plans/**)",
-      "Edit(~/{{ .machineSync.onedriveRelDir }}/{{ .machineSync.syncRelDir }}/claude/plans/**)",
+      "Edit(//private/tmp/claude-{{ .chezmoi.uid }}/**)",
       "mcp__salt__get_page",
       "mcp__salt__get_collection",
       "mcp__salt__get_workspace",
@@ -80,6 +77,9 @@ managed=$(cat <<'MANAGED'
       "mcp__salt__get_import_status",
       "mcp__salt__revisions",
       "mcp__salt__whoami"
+{{- if .radixils }},
+      "Edit(~/.claude/plans/**)",
+      "Edit(~/{{ .machineSync.onedriveRelDir }}/{{ .machineSync.syncRelDir }}/claude/plans/**)"
 {{- end }}
     ],
     "defaultMode": "auto",
