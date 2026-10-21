@@ -1,0 +1,133 @@
+#!/usr/bin/env bash
+# salt — a thin client for a salt.md instance over its MCP endpoint and REST API.
+#
+# Needs SALT_URL (the instance, e.g. https://salt.example.com) and SALT_TOKEN
+# (an API token minted under "Connect an agent") in the environment. The token
+# is sent only as a bearer header and never appears in arguments or output.
+#
+#   salt tools [name]                   tool names and descriptions; one tool's full schema
+#   salt call <tool> [json-args]        any MCP tool; json-args defaults to {}
+#   salt page <id> [--children]         get_page, optionally with the subtree
+#   salt search <query>                 full-text search
+#   salt list <kind> [workspace_id]     pages | databases | workspaces | templates | files | ...
+#   salt rows <database_id> [json]      query_rows; json may hold filter, sort, limit, offset
+#   salt workspace [id]                 members, counts and rules
+#   salt whoami                         what this token may do
+#   salt export <id>                    a page as Markdown (REST)
+#
+# Output is the tool's text content, usually JSON or Markdown. A tool error or a
+# JSON-RPC error goes to stderr with exit 1; missing config exits 2.
+set -eufo pipefail
+
+usage() { sed -n '2,20s/^# \{0,1\}//p' "$0"; }
+
+die() {
+  echo "salt: $*" >&2
+  exit 1
+}
+
+need_config() {
+  if [ -z "${SALT_URL:-}" ] || [ -z "${SALT_TOKEN:-}" ]; then
+    echo "salt: set SALT_URL and SALT_TOKEN in the environment" >&2
+    echo "salt: under the work tree direnv loads them from ~/.config/rdx/secrets.zsh" >&2
+    exit 2
+  fi
+  for bin in curl jq; do
+    command -v "$bin" >/dev/null || die "needs $bin"
+  done
+}
+
+# rpc <method> <params-json> → raw JSON-RPC response on stdout.
+rpc() {
+  local body
+  body="$(jq -cn --arg m "$1" --argjson p "$2" '{jsonrpc:"2.0",id:1,method:$m,params:$p}')"
+  curl -sS --fail-with-body -X POST "${SALT_URL%/}/mcp" \
+    -H "Authorization: Bearer $SALT_TOKEN" \
+    -H 'Content-Type: application/json' \
+    -H 'Accept: application/json, text/event-stream' \
+    --data "$body"
+}
+
+# call <tool> <args-json>: prints the text content, exits 1 on a tool error.
+call() {
+  local tool="$1" args="${2:-{\}}" resp
+  jq -e . >/dev/null 2>&1 <<<"$args" || die "arguments must be JSON: $args"
+  resp="$(rpc tools/call "$(jq -cn --arg n "$tool" --argjson a "$args" '{name:$n,arguments:$a}')")" ||
+    die "request failed: $resp"
+  if jq -e '.error' >/dev/null <<<"$resp"; then
+    die "$(jq -r '.error.message // .error' <<<"$resp")"
+  fi
+  if jq -e '.result.isError == true' >/dev/null <<<"$resp"; then
+    die "$tool: $(jq -r '[.result.content[]? | .text // empty] | join("\n")' <<<"$resp")"
+  fi
+  jq -r '[.result.content[]? | .text // empty] | join("\n")' <<<"$resp"
+}
+
+tools() {
+  local resp
+  resp="$(rpc tools/list '{}')" || die "request failed: $resp"
+  if [ $# -eq 0 ]; then
+    jq -r '.result.tools[] | "\(.name)\t\(.description | split("\n")[0])"' <<<"$resp" | column -ts $'\t'
+  else
+    jq -e --arg n "$1" '.result.tools[] | select(.name == $n)' <<<"$resp" || die "no tool named $1"
+  fi
+}
+
+export_page() {
+  curl -sS --fail-with-body "${SALT_URL%/}/api/export/$1" \
+    -H "Authorization: Bearer $SALT_TOKEN" -H 'Accept: text/markdown' ||
+    die "export failed"
+}
+
+[ $# -ge 1 ] || {
+  usage >&2
+  exit 2
+}
+cmd="$1"
+shift
+case "$cmd" in
+  -h | --help | help)
+    usage
+    exit 0
+    ;;
+esac
+need_config
+
+case "$cmd" in
+  tools) tools "$@" ;;
+  call)
+    [ $# -ge 1 ] || die "usage: salt call <tool> [json-args]"
+    call "$1" "${2:-{\}}"
+    ;;
+  page)
+    [ $# -ge 1 ] || die "usage: salt page <id> [--children]"
+    children=false
+    [ "${2:-}" = "--children" ] && children=true
+    call get_page "$(jq -cn --arg id "$1" --argjson c "$children" '{page_id:$id,include_children:$c}')"
+    ;;
+  search)
+    [ $# -ge 1 ] || die "usage: salt search <query>"
+    call search "$(jq -cn --arg q "$*" '{query:$q}')"
+    ;;
+  list)
+    [ $# -ge 1 ] || die "usage: salt list <kind> [workspace_id]"
+    call list "$(jq -cn --arg k "$1" --arg w "${2:-}" '{kind:$k} + (if $w != "" then {workspace_id:$w} else {} end)')"
+    ;;
+  rows)
+    [ $# -ge 1 ] || die "usage: salt rows <database_id> [json]"
+    jq -e . >/dev/null 2>&1 <<<"${2:-{\}}" || die "second argument must be JSON"
+    call query_rows "$(jq -cn --arg id "$1" --argjson o "${2:-{\}}" '{page_id:$id} + $o')"
+    ;;
+  workspace)
+    call get_workspace "$(jq -cn --arg w "${1:-}" 'if $w != "" then {workspace_id:$w} else {} end')"
+    ;;
+  whoami) call whoami '{}' ;;
+  export)
+    [ $# -eq 1 ] || die "usage: salt export <id>"
+    export_page "$1"
+    ;;
+  *)
+    usage >&2
+    die "unknown command: $cmd"
+    ;;
+esac

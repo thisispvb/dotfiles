@@ -94,3 +94,6 @@ The number of tokens used to edit files is best minimized, all else being equal.
 - Don't echo back file contents you just read — the user can see them.
 - Don't narrate tool calls ("Let me read the file..." / "Now I'll edit..."). Just do it.
 - Keep explanations proportional to complexity. Simple changes need one sentence, not three paragraphs.
+
+### salt.md
+Read and write salt.md with the `salt` CLI (`salt --help` lists the commands, `salt tools` the full tool set). Its env comes from direnv under the work tree.
