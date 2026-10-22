@@ -22,6 +22,8 @@ export HOMEBREW_REPOSITORY="{{ if eq $brewPrefix "/usr/local" }}/usr/local/Homeb
 fpath[1,0]="$HOMEBREW_PREFIX/share/zsh/site-functions"
 export FPATH
 path=($HOMEBREW_PREFIX/bin $HOMEBREW_PREFIX/sbin $path)
+# keg-only curl: macOS /usr/bin/curl trusts the stale /etc/ssl/cert.pem
+path=($HOMEBREW_PREFIX/opt/curl/bin(N-/) $path)
 [ -z "${MANPATH-}" ] || export MANPATH=":${MANPATH#:}"
 export INFOPATH="$HOMEBREW_PREFIX/share/info:${INFOPATH:-}"
 {{   end -}}
