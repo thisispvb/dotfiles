@@ -19,6 +19,6 @@ versions:
   # `pnpm install` reuses the already-installed runtime.
   rdx:
     node: "26.12.1"
-    pnpm: "11.28.6"
+    pnpm: "12.15.0"
     # rdx go.mod `go` directive; mise resolves the latest patch.
     go: "1.26"
