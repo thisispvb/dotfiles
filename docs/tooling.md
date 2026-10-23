@@ -7,6 +7,8 @@
   `pnpm install` in any worktree never downloads a runtime.
 - Tools resolve through **shims** (`~/.local/share/mise/shims`), which honour
   per-project pins (`.mise.toml`, `.node-version`, `.nvmrc`) on every call.
+- When a pin changes, the mise script prunes Node versions no tracked config
+  selects, so superseded (possibly vulnerable) runtimes don't linger.
 - `mise activate` is deliberately not used: it costs ~40 ms per shell start, and
   shims already handle versions. Per-directory env vars are direnv's job.
 - The old pnpm-managed runtime paths (`~/.local/share/pnpm/pnpm`,

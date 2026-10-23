@@ -16,6 +16,10 @@ echo "📦 Installing the mise toolchain"
 mise install --yes
 mise reshim
 
+# Drop superseded Node installs (old pins may carry fixed CVEs). Versions a
+# tracked config still selects are kept; mise reinstalls any other on demand.
+mise prune --yes --tools node
+
 # The old pnpm-managed runtime lived at $PNPM_HOME/pnpm and $PNPM_HOME/bin/node.
 # Shells, editors and agents started before the switch still have those paths
 # on PATH, so point them at the mise shims instead of deleting them.
