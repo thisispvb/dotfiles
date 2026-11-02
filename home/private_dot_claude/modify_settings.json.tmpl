@@ -65,8 +65,7 @@ managed=$(cat <<'MANAGED'
       "Bash(git tag *)",
       "Bash(* --version)",
       "Bash(* --help)",
-      "Edit(//private/tmp/claude-{{ .chezmoi.uid }}/**)",
-      "Bash(salt *)"
+      "Edit(//private/tmp/claude-{{ .chezmoi.uid }}/**)"
 {{- if .radixils }},
       "Edit(~/.claude/plans/**)",
       "Edit(~/{{ .machineSync.onedriveRelDir }}/{{ .machineSync.syncRelDir }}/claude/plans/**)"

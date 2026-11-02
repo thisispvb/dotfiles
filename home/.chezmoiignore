@@ -4,7 +4,6 @@
 
 {{ if not .radixils }}
 .config/rdx
-.local/bin/salt
 {{ end }}
 
 {{ if not .radixils }}
