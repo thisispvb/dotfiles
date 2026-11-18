@@ -1,0 +1,22 @@
+{{- if .radixils -}}
+#!/usr/bin/env bash
+
+# (Re)loads the weekday-morning Claude brief agent.
+#
+# plist hash: {{ include "private_Library/LaunchAgents/com.pvb.claude-brief.plist.tmpl" | sha256sum }}
+
+set -eufo pipefail
+
+onedrive_root="{{ includeTemplate "onedrive-root" . }}"
+plist="$HOME/Library/LaunchAgents/com.pvb.claude-brief.plist"
+label="com.pvb.claude-brief"
+
+if [ ! -d "$onedrive_root" ] || [ ! -f "$plist" ]; then
+  echo "⏭️  OneDrive not set up — skipping the Claude brief agent"
+  exit 0
+fi
+
+echo "⏰ Loading $label"
+launchctl bootout "gui/$(id -u)/$label" 2>/dev/null || true
+launchctl bootstrap "gui/$(id -u)" "$plist"
+{{- end }}

@@ -1,0 +1,33 @@
+{{- if .radixils -}}
+#!/usr/bin/env bash
+
+# Runs the personal /brief Claude Code skill headless (launchd, weekday mornings).
+# The skill reads PRs, plans and local git state and rewrites one notes page;
+# the tool allowlist below is everything it may touch.
+
+set -eufo pipefail
+
+# launchd's PATH lacks Homebrew, ~/.local/bin (claude) and mise shims.
+export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+stamp() { date '+%Y-%m-%dT%H:%M:%S%z'; }
+
+echo "$(stamp) brief: start"
+cd "$HOME/git/rdx/rdx"
+
+status=0
+# The allowlist matches command text, so the repo path is allowed in both its
+# ~/ and absolute spellings. The skill takes the time from now= (no `date`).
+repo_abs="{{ .chezmoi.homeDir }}/git/rdx/rdx"
+allowed="mcp__salt,ToolSearch,Bash(gh pr list *),Bash(gh pr view *),Bash(gh pr checks *)"
+# shellcheck disable=SC2088 # the literal ~ is the point: it is rule text, not a path
+for repo in "~/git/rdx/rdx" "$repo_abs"; do
+  allowed="$allowed,Bash(git -C $repo worktree list*),Bash(git -C $repo for-each-ref *),Bash(git -C $repo log *)"
+done
+
+claude -p "/brief now=$(date '+%F %H:%M')" --allowedTools "$allowed" ||
+  status=$?
+
+echo "$(stamp) brief: exit $status"
+exit "$status"
+{{- end }}

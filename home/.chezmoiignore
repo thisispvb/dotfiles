@@ -42,10 +42,17 @@ git/rdx
 # without the stat check a fresh machine gets a dangling ~/.claude/plans symlink.
 {{ if not .radixils }}
 .claude/plans
+.claude/skills/brief
+.claude/skills/weekly-review
+.claude/skills/handover
 .local/bin/machine-state-backup.sh
 .local/bin/machine-state-restore.sh
+.local/bin/claude-brief.sh
 Library
 {{ else if not (stat (includeTemplate "onedrive-root" .)) }}
 .claude/plans
+.claude/skills/brief
+.claude/skills/weekly-review
+.claude/skills/handover
 Library
 {{ end }}
