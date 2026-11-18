@@ -13,6 +13,16 @@ export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:/opt/homebrew/bin:/u
 stamp() { date '+%Y-%m-%dT%H:%M:%S%z'; }
 
 echo "$(stamp) brief: start"
+
+# A long-lived token from `claude setup-token`, kept in the login Keychain so it
+# never lands in this repo. Scoped to this run: interactive sessions keep their
+# own sign-in. Without it, claude falls back to that sign-in, which expires.
+if CLAUDE_CODE_OAUTH_TOKEN="$(security find-generic-password -s claude-brief-oauth -w 2>/dev/null)"; then
+  export CLAUDE_CODE_OAUTH_TOKEN
+else
+  unset CLAUDE_CODE_OAUTH_TOKEN
+  echo "$(stamp) brief: no claude-brief-oauth Keychain item; using the interactive sign-in"
+fi
 cd "$HOME/git/rdx/rdx"
 
 status=0
