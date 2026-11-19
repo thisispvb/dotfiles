@@ -70,7 +70,15 @@ managed=$(cat <<'MANAGED'
       "Edit(//private/tmp/claude-{{ .chezmoi.uid }}/**)"
 {{- if .radixils }},
       "Edit(~/.claude/plans/**)",
-      "Edit(~/{{ .machineSync.onedriveRelDir }}/{{ .machineSync.syncRelDir }}/claude/plans/**)"
+      "Edit(~/{{ .machineSync.onedriveRelDir }}/{{ .machineSync.syncRelDir }}/claude/plans/**)",
+      "mcp__salt__get_page",
+      "mcp__salt__search",
+      "mcp__salt__list",
+      "mcp__salt__get_collection",
+      "mcp__salt__query_rows",
+      "mcp__salt__get_links",
+      "mcp__salt__get_workspace",
+      "mcp__salt__whoami"
 {{- end }}
     ],
     "defaultMode": "auto",
@@ -85,7 +93,7 @@ managed=$(cat <<'MANAGED'
 {{- end }}
     ]
   },
-  "model": "opus",
+  "model": "fable",
   "statusLine": {
     "type": "command",
     "command": "sh ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud-cache.sh ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud.mjs"
