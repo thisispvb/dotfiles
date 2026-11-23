@@ -1,0 +1,11 @@
+{
+  "name": "pvb-local",
+  "owner": { "name": "pvb" },
+  "plugins": [
+    {
+      "name": "tsgo-lsp",
+      "description": "TypeScript LSP via TS 7 native (tsc --lsp --stdio)",
+      "source": "./tsgo-lsp"
+    }
+  ]
+}

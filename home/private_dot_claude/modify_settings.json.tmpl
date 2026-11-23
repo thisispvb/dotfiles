@@ -107,11 +107,18 @@ managed=$(cat <<'MANAGED'
     "feature-dev@claude-plugins-official": false,
     "frontend-design@claude-plugins-official": false,
     "oh-my-claudecode@omc": true,
-    "typescript-lsp@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": false,
+    "tsgo-lsp@pvb-local": true,
     "gopls-lsp@claude-plugins-official": true,
     "codex@openai-codex": true
   },
   "extraKnownMarketplaces": {
+    "pvb-local": {
+      "source": {
+        "source": "directory",
+        "path": "{{ .chezmoi.homeDir }}/.claude/local-plugins"
+      }
+    },
     "omc": {
       "source": {
         "source": "git",
