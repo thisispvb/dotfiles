@@ -93,7 +93,7 @@ managed=$(cat <<'MANAGED'
 {{- end }}
     ]
   },
-  "model": "fable",
+  "model": "opus",
   "statusLine": {
     "type": "command",
     "command": "sh ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud-cache.sh ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud.mjs"
@@ -129,11 +129,8 @@ managed=$(cat <<'MANAGED'
   "outputStyle": "Concise",
   "effortLevel": "medium",
   "modelSettings": {
-    "claude-fable-5": {
+    "claude-fable-5-2": {
       "effortLevel": "medium"
-    },
-    "claude-fable-5-1": {
-      "effortLevel": "high"
     },
     "claude-opus-5-5": {
       "effortLevel": "medium"
