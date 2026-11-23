@@ -3,7 +3,7 @@
 # Installs the global mise toolchain. Re-runs only when the rendered config
 # changes:
 # config: {{ include "private_dot_config/mise/config.toml.tmpl" | sha256sum }}
-# versions: {{ list .versions.node .versions.pnpm .versions.python .versions.rdx | toJson | sha256sum }} role: {{ .machineRole }}
+# versions: {{ list .versions.node .versions.pnpm .versions.python .versions.tsLanguageServer .versions.typescript .versions.rdx | toJson | sha256sum }} role: {{ .machineRole }}
 
 set -eufo pipefail
 

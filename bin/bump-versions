@@ -32,6 +32,10 @@ row node "$(pin node)" "$(curl -fsSL https://nodejs.org/dist/index.json |
 row pnpm "$(pin pnpm)" "$(latest_tag pnpm/pnpm)"
 row python "$(pin python)" "$(curl -fsSL https://endoflife.date/api/python.json | jq -r '.[0].latest')"
 
+npm_latest() { curl -fsSL "https://registry.npmjs.org/$1/latest" | jq -r .version; }
+row tsLanguageServer "$(pin tsLanguageServer)" "$(npm_latest typescript-language-server)"
+row typescript "$(pin typescript)" "$(npm_latest typescript)"
+
 if [ -f "$rdx_pkg" ]; then
   row rdx.node "$(pin rdx.node)" "$(jq -r .devEngines.runtime.version "$rdx_pkg") (rdx web/package.json)"
   row rdx.pnpm "$(pin rdx.pnpm)" "$(jq -r .devEngines.packageManager.version "$rdx_pkg") (rdx web/package.json)"
