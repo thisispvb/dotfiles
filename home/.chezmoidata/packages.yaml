@@ -91,9 +91,10 @@ packages:
       magnet: 441258766
       slack-for-desktop: 803453959
       wireguard: 1451685025
-    # Work machines. Repo-specific tooling (go, uv, duckdb, vault, openssl,
-    # sops, ...) comes from rdx's own Brewfile, which run_onchange_after_15
-    # bundles when ~/git/rdx/rdx is checked out. This list is cross-repo only.
+    # Work machines. Repo-specific tooling (go, uv, vault, openssl, sops, ...)
+    # comes from rdx's own Brewfile, which run_onchange_after_15 bundles when
+    # ~/git/rdx/rdx is checked out; duckdb comes from rdx's pinned
+    # `task setup:duckdb-cli`, which the same script runs. Cross-repo only here.
     work:
       taps:
         - hashicorp/tap

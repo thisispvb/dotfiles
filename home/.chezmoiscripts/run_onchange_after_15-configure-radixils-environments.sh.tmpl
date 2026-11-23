@@ -1,10 +1,12 @@
 {{- if .radixils -}}
 {{- $rdxBrewfile := joinPath .chezmoi.homeDir "git/rdx/rdx/Brewfile" -}}
+{{- $rdxSetup := joinPath .chezmoi.homeDir "git/rdx/rdx/tasks/setup.yml" -}}
 #!/usr/bin/env bash
 
 # Work machine setup. Dotfiles own cross-repo tooling; rdx owns its own
-# (Brewfile, `task setup`, DuckDB). Re-runs when either package list changes:
+# (Brewfile, `task setup`, DuckDB). Re-runs when a package list or pin changes:
 # rdx Brewfile: {{ if stat $rdxBrewfile }}{{ include $rdxBrewfile | sha256sum }}{{ else }}absent{{ end }}
+# rdx tasks/setup.yml: {{ if stat $rdxSetup }}{{ include $rdxSetup | sha256sum }}{{ else }}absent{{ end }}
 # ~/git/rdx/.envrc: {{ include "git/rdx/dot_envrc" | sha256sum }}
 
 set -eufo pipefail
@@ -34,6 +36,16 @@ for file in "$brewfile" "{{ $rdxBrewfile }}"; do
     brew bundle --no-upgrade --file="$file"
   fi
 done
+
+# DuckDB is pinned by rdx (`task setup:duckdb-cli` → ~/.local/bin/duckdb),
+# not brew. Drop a stale unpinned brew copy, then install the pin.
+if brew list duckdb >/dev/null 2>&1; then
+  echo "🦆 Removing unpinned brew duckdb"
+  brew uninstall duckdb
+fi
+if [ -d "$HOME/git/rdx/rdx" ] && command -v task >/dev/null 2>&1; then
+  task -d "$HOME/git/rdx/rdx" setup:duckdb-cli setup:duckdb-extensions
+fi
 
 # Install Claude Code via native installer (auto-updates)
 if ! command -v claude &> /dev/null; then
