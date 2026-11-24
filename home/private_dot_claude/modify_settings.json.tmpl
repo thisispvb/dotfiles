@@ -12,6 +12,8 @@ managed=$(cat <<'MANAGED'
 {
   "cleanupPeriodDays": 90,
   "env": {
+    "CLAUDE_CODE_AUTO_CONNECT_IDE": "false",
+    "CLAUDE_CODE_IDE_SKIP_AUTO_INSTALL": "true",
     "OMC_SKIP_HOOKS": "project-memory"
   },
   "attribution": {
@@ -159,7 +161,7 @@ MANAGED
 live=$(cat)
 [ -n "$live" ] || live='{}'
 printf '%s\n' "$live" | jq --indent 2 --argjson managed "$managed" \
-  'del(.includeCoAuthoredBy)
+  'del(.includeCoAuthoredBy, .autoConnectIde)
   | (.hooks.PreToolUse |= (. // [] | map(select(all(.hooks[]?; .command != "rtk hook claude")))))
   | if .hooks.PreToolUse == [] then del(.hooks.PreToolUse) else . end
   | if .hooks == {} then del(.hooks) else . end
