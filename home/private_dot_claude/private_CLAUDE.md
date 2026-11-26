@@ -73,6 +73,20 @@ Say "setup omc" or run `/oh-my-claudecode:omc-setup`.
 <!-- OMC:END -->
 
 <!-- User customizations -->
+## Delivery
+
+A request to change a repo is the standing authorization to deliver it, end to end: a `pvb/` branch,
+one commit per slice, the battery, an independent reviewer agent, push once, `gh pr create` ready
+(never draft), a background `ci:wait`, then fix to green. Never merge.
+
+- Commit, push and opening the PR are not "approval required" for the AskUserQuestion rule above.
+- Never end a turn with "ready to commit / open the PR when you say go"; do it, then report the PR.
+- Never write a step into a plan that waits on pvb before commit, push or PR.
+- Still ask before: merging, force-push or rebase of a shared branch, protected files, installs, auth
+  or security changes, prod deploys, publishing to a public repo, and work past the request.
+- `~/.claude/hooks/delivery-gate.mjs` enforces this (Stop, AskUserQuestion, ExitPlanMode);
+  `PVB_DELIVERY_GATE=off` disables it.
+
 ## Context Efficiency
 
 ### Subagent Discipline

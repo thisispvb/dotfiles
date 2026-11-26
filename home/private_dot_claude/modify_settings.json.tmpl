@@ -135,6 +135,31 @@ managed=$(cat <<'MANAGED'
       }
     }
   },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hooks/delivery-gate.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "AskUserQuestion|ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hooks/delivery-gate.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
   "outputStyle": "Concise",
   "effortLevel": "medium",
   "modelSettings": {
